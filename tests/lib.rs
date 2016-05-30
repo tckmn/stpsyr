@@ -119,3 +119,13 @@ fn test_datc_6a11() {
     s.apply_orders();
     assert_empty!(s, "tyr");
 }
+
+#[test]
+fn test_datc_6a12() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Italy", "ven", "tyr", false);
+    move_order!(s, "Austria", "vie", "tyr", false);
+    move_order!(s, "Germany", "mun", "tyr", false);
+    s.apply_orders();
+    assert_empty!(s, "tyr");
+}
