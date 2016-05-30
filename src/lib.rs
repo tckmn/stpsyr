@@ -367,13 +367,14 @@ impl Stpsyr {
 
         if attacked_power == Some(move_order.owner) { return 0; }
 
-        1 + self.orders.clone().iter().filter(|o|
+        let supports: Vec<usize> = self.orders.iter().filter(|o|
             match o.action {
                 Action::SupportMove { ref from, ref to } =>
                     *from == *province && *to == *dest,
                 _ => false
-            } && attacked_power.as_ref().map_or(true, |attacked| *attacked != o.owner)
-            && self.resolve(o.id)).count()
+            } && attacked_power.as_ref().map_or(true, |attacked| *attacked != o.owner))
+            .map(|o| o.id).collect();
+        1 + supports.iter().filter(|&id| self.resolve(*id)).count()
     }
 
     fn defend_strength(&mut self, province: &String) -> usize {
@@ -387,12 +388,13 @@ impl Stpsyr {
             _ => unreachable!()
         };
 
-        1 + self.orders.clone().iter().filter(|o|
+        let supports: Vec<usize> = self.orders.iter().filter(|o|
             match o.action {
                 Action::SupportMove { ref from, ref to } =>
                     *from == *province && *to == *dest,
                 _ => false
-            } && self.resolve(o.id)).count()
+            }).map(|o| o.id).collect();
+        1 + supports.iter().filter(|&id| self.resolve(*id)).count()
     }
 
     fn prevent_strength(&mut self, province: &String) -> usize {
