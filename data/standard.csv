@@ -1,0 +1,76 @@
+name,sc,owner,unit,fleet borders,army borders
+adr,false,,,ven tri apu alb ion,
+aeg,false,,,bul gre con smy ion eas,
+alb,false,,,tri adr ion gre,ser tri gre
+ank,true,Turkey,Fleet,bla con arm,con smy arm
+apu,false,Italy,,adr ven nap ion,rom ven nap
+arm,false,Turkey,,sev bla ank,smy syr ank sev
+bal,false,,,lvn pru ber kie den swe bot,
+bar,false,,,stp nwy nwg,
+bel,true,,,eng nth hol pic,bur ruh hol pic
+ber,true,Germany,Army,bal pru kie,mun sil kie pru
+bla,false,,,sev arm ank con bul rum,
+boh,false,,,,mun sil gal vie tyr
+bre,true,France,Fleet,mao eng pic gas,par pic gas
+bud,true,Austria,Army,,vie gal rum ser tri
+bul,true,,,rum bla con aeg gre,ser rum gre con
+bur,false,France,,,par pic bel ruh mun mar gas
+cly,false,England,,nao nwg edi lvp,edi lvp
+con,true,Turkey,Army,bul bla ank smy aeg,bul ank smy
+den,true,,,nth ska swe bal kie hel,swe kie
+eas,false,,,syr smy aeg ion,
+edi,true,England,Fleet,cly nwg nth yor,lvp cly yor
+eng,false,,,mao iri wal lon nth bel pic bre,
+fin,false,Russia,,stp bot swe,nwy swe stp
+gal,false,Austria,,,war ukr rum bud vie boh sil
+gas,false,France,,bre spa mao,par bur mar bre spa
+gre,true,,,aeg ion alb bul,ser alb bul
+lyo,false,,,spa mar pie tus tys wes,
+bot,false,,,bal swe fin stp lvn,
+hel,false,,,hol nth den kie,
+hol,true,,,hel kie bel nth,ruh bel kie
+ion,false,,,eas aeg gre alb adr apu nap trs tun,
+iri,false,,,nao lvp wal eng mao,
+kie,true,Germany,Fleet,hol hel den bal ber,mun ruh ber hol den
+lvp,true,England,Army,nao cly wal iri,edi yor cly wal
+lvn,false,Russia,,stp pru bal bot,mos war pru stp
+lon,true,England,Fleet,yor nth eng wal,yor wal
+mar,true,France,Army,pie lyo spa,gas bur pie spa
+mao,false,,,nao iri eng bre gas spa por naf wes,
+mos,true,Russia,Army,,stp liv war ukr sev
+mun,true,Germany,Army,,bur ruh kie ber sil boh tyr
+nap,true,Italy,Fleet,rom apu ion tys,rom apu
+nao,false,,,nwg cly lvp iri mao,
+naf,false,,,mao wes tun,tun
+nth,false,,,edi yor lon eng bel hol hel den ska nwy nwg,
+nwy,true,,,stp swe ska nth nwg bar,fin stp swe
+nwg,false,,,nao cly edi nth nwy bar,
+par,true,France,Army,,bre pic bur mar gas
+pic,false,France,,eng nth bel bre,par bur bre bel
+pie,false,Italy,,mar lyo tus,ven tyr mar tus
+por,true,,,mao spa,spa
+pru,false,Austria,,bal lvn ber,war sil ber lvn
+rom,true,Italy,Army,tus nap tys,ven apu nap tus
+ruh,false,Austria,,,bel hol kie mun bur
+rum,true,,,bla bul sev,ser bud gal ukr sev bul
+ser,true,,,,alb tri bud rum bul gre
+sev,true,Russia,Fleet,arm bla rum,ukr mos arm rum
+sil,false,Austria,,,ber pru war gal boh mun
+ska,false,,,nwy swe den nth,
+smy,true,Turkey,Army,syr con aeg eas,ank arm con syr
+spa,true,,,por mao gas mar lyo wes,por gas mar
+stp,true,Russia,Fleet,bar nwy fin bot lvn,mos lvn fin
+swe,true,,,nwy fin bot bal den ska,nwy fin den
+syr,false,Turkey,,smy eas,smy arm
+tri,true,Austria,Fleet,adr ven alb,tyr vie bud ser ven alb
+tun,true,,,ion tys wes naf,naf
+tus,false,Italy,,lyo tys rom pie,ven pie rom
+tyr,false,,,,pie ven tri vie boh mun
+tys,false,,,ion tun wes lyo tus rom nap,
+ukr,false,Russia,,,sev rum gal war mos
+ven,true,Italy,Army,tri adr apu,rom tus pie tyr tri apu
+vie,true,Austria,Army,,tri tyr boh gal bud
+wal,false,England,,lvp lon eng iri,yor lon lvp
+war,true,Russia,Army,,lvn mos ukr gal sil pru
+wes,false,,,mao spa lyo tys tun naf,
+yor,false,England,,edi lon nth,lvp wal edi lon
