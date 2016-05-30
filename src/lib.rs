@@ -8,36 +8,84 @@ pub enum UnitType { Army, Fleet }
 
 #[derive(Clone)]
 pub struct Unit {
-    pub owner: String,
+    pub owner: Power,
     pub unit_type: UnitType
 }
 impl fmt::Debug for Unit {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?} {}", self.unit_type, self.owner)
+        write!(f, "{:?} {:?}", self.unit_type, self.owner)
     }
 }
 
-#[derive(Clone)]
-struct Province {
+#[derive(Clone,Debug)]
+pub struct Province {
     name: String,
-    sc: bool,
-    owner: Option<String>,
-    unit: Option<Unit>,
-    fleet_borders: Vec<String>,
-    army_borders: Vec<String>
+    coast: Option<char>
 }
-impl fmt::Debug for Province {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}{}{}",
-               self.name,
-               if self.sc { "*" } else { "" },
-               self.owner.as_ref().map_or(String::new(), |o| format!(" ({})", o)),
-               self.unit.as_ref().map_or(String::new(), |o| format!(" [{:?}]", o)))
+impl From<String> for Province {
+    fn from(s: String) -> Province {
+        if let Some(idx) = s.find('/') {
+            let mut s = s;
+            let coast = s.chars().nth(idx + 1);
+            s.truncate(idx);
+            Province { name: s, coast: coast }
+        } else {
+            Province { name: s, coast: None }
+        }
+    }
+}
+impl<'a> From<&'a str> for Province {
+    fn from(s: &str) -> Province {
+        Province::from(s.to_string())
     }
 }
 impl cmp::PartialEq for Province {
     fn eq(&self, other: &Province) -> bool {
         self.name == other.name
+    }
+}
+impl Province {
+    fn coast_eq(&self, other: &Province) -> bool {
+        self.name == other.name && self.coast == other.coast
+    }
+}
+
+#[derive(Clone,Debug,PartialEq)]
+pub struct Power {
+    name: String
+}
+impl From<String> for Power {
+    fn from(s: String) -> Power {
+        Power { name: s }
+    }
+}
+impl<'a> From<&'a str> for Power {
+    fn from(s: &str) -> Power {
+        Power::from(s.to_string())
+    }
+}
+
+#[derive(Clone)]
+struct MapRegion {
+    province: Province,
+    sc: bool,
+    owner: Option<Power>,
+    unit: Option<Unit>,
+    fleet_borders: Vec<Province>,
+    army_borders: Vec<Province>
+}
+impl fmt::Debug for MapRegion {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}{}{}{}",
+               self.province,
+               if self.sc { "*" } else { "" },
+               self.owner.as_ref().map_or(String::new(), |o| format!(" ({:?})", o)),
+               self.unit.as_ref().map_or(String::new(), |o| format!(" [{:?}]", o)))
+    }
+}
+impl cmp::PartialEq for MapRegion {
+    fn eq(&self, other: &MapRegion) -> bool {
+        self.province == other.province
     }
 }
 
@@ -46,16 +94,16 @@ enum OrderState { UNRESOLVED, GUESSING, RESOLVED }
 #[derive(Clone,Debug)]
 pub enum Action {
     Hold,
-    Move { to: String, convoyed: bool },
-    SupportHold { to: String },
-    SupportMove { from: String, to: String },
-    Convoy { from: String, to: String }
+    Move { to: Province, convoyed: bool },
+    SupportHold { to: Province },
+    SupportMove { from: Province, to: Province },
+    Convoy { from: Province, to: Province }
 }
 
 #[derive(Clone,Debug)]
 struct Order {
-    owner: String,
-    province: String,
+    owner: Power,
+    province: Province,
     action: Action,
     resolution: bool,
     state: OrderState,
@@ -64,61 +112,62 @@ struct Order {
 
 pub enum RetreatAction {
     Disband,
-    Move { to: String }
+    Move { to: Province }
 }
 
 struct Retreat {
-    owner: String,
-    province: String,
+    owner: Power,
+    province: Province,
     action: RetreatAction
 }
 
 pub struct Stpsyr {
-    map: Vec<Province>,
+    map: Vec<MapRegion>,
     orders: Vec<Order>,
     dependencies: Vec<usize>,
-    dislodged: Vec<(String, Unit)>
+    dislodged: Vec<(Province, Unit)>
 }
 
 impl Stpsyr {
     pub fn new(mapfile: &'static str) -> Stpsyr {
         let mut reader = csv::Reader::from_file(mapfile).unwrap();
 
-        let map: Vec<Province> = reader.decode::<(
+        let map: Vec<MapRegion> = reader.decode::<(
                     String,          // 0 name
                     bool,            // 1 SC?
                     Option<String>,  // 2 starting owner
                     Option<String>,  // 3 starting unit type
                     String,          // 4 bordering provinces (fleets)
                     String           // 5 bordering provinces (armies)
-                )>().map(|province| {
-            let province = province.unwrap();
-            Province {
-                name: province.0.clone(),
-                sc: province.1,
-                owner: province.2.clone(),
-                unit: province.3.as_ref().map(|unit_type| Unit {
-                    owner: province.2.clone().unwrap(),
+                )>().map(|region| {
+            let region = region.unwrap();
+            MapRegion {
+                province: Province::from(region.0.clone()),
+                sc: region.1,
+                owner: region.2.clone().map(Power::from),
+                unit: region.3.as_ref().map(|unit_type| Unit {
+                    owner: Power::from(region.2.clone().unwrap()),
                     unit_type: match &unit_type[..] {
                         "Army" => UnitType::Army,
                         "Fleet" => UnitType::Fleet,
                         _ => panic!("unit type must be Army or Fleet")
                     }
                 }),
-                fleet_borders: province.4.split_whitespace().map(String::from).collect(),
-                army_borders: province.5.split_whitespace().map(String::from).collect()
+                fleet_borders: region.4.split_whitespace().map(Province::from).collect(),
+                army_borders: region.5.split_whitespace().map(Province::from).collect()
             }
         }).collect();
 
         Stpsyr { map: map, orders: vec![], dependencies: vec![], dislodged: vec![] }
     }
 
-    pub fn add_order(&mut self, owner: String, province: String, action: Action) {
+    pub fn add_order(&mut self, owner: Power, province: Province, action: Action) {
         let unit = if let Some(unit) = self.get_unit(&province) { unit }
             else { return; };
 
         let convoyed = match action {
             Action::Move { ref to, convoyed } => {
+                // let's do a quick check here: you can't move to yourself
                 if province == *to { return; }
                 convoyed
             },
@@ -135,7 +184,7 @@ impl Stpsyr {
                     &Action::Move { ref to, convoyed: _ } |
                     &Action::SupportHold { ref to } |
                     &Action::SupportMove { from: _, ref to } => {
-                        let p = self.get_province(&province).unwrap();
+                        let p = self.get_region(&province).unwrap();
                         match unit.unit_type {
                             UnitType::Army => &p.army_borders,
                             UnitType::Fleet => &p.fleet_borders
@@ -155,7 +204,7 @@ impl Stpsyr {
         }
     }
 
-    pub fn apply_orders(&mut self) -> Vec<(String, Unit)> {
+    pub fn apply_orders(&mut self) -> Vec<(Province, Unit)> {
         for i in 0..self.orders.len() {
             self.resolve(i);
             println!("{:?}", self.orders[i]);
@@ -169,13 +218,13 @@ impl Stpsyr {
     }
 
     fn apply_resolved(&mut self) {
-        let mut dislodged: Vec<(String, Unit)> = vec![];
-        let mut moved_away: Vec<&String> = vec![];
+        let mut dislodged: Vec<(Province, Unit)> = vec![];
+        let mut moved_away: Vec<&Province> = vec![];
         let old_map = self.map.clone();
         for order in self.orders.iter() { if order.resolution {
             match order.action { Action::Move { ref to, convoyed: _ } => {
-                let from_idx = self.map.iter().position(|p| p.name == order.province).unwrap();
-                let to_idx = self.map.iter().position(|p| p.name == *to).unwrap();
+                let from_idx = self.map.iter().position(|r| r.province == order.province).unwrap();
+                let to_idx = self.map.iter().position(|r| r.province == *to).unwrap();
                 if let Some(ref unit) = self.map[to_idx].unit {
                     dislodged.push((to.clone(), unit.clone()));
                 }
@@ -185,25 +234,25 @@ impl Stpsyr {
             }, _ => {} }
         } }
 
-        for province in self.map.iter_mut() {
-            let p_dislodged = dislodged.iter().find(|d| d.0 == province.name);
-            let p_moved_away = moved_away.contains(&&province.name);
+        for region in self.map.iter_mut() {
+            let p_dislodged = dislodged.iter().find(|d| d.0 == region.province);
+            let p_moved_away = moved_away.contains(&&region.province);
             if let Some(dislodgement) = p_dislodged {
                 if !p_moved_away {
                     self.dislodged.push(dislodgement.clone());
                 }
             } else if p_moved_away {
-                province.unit = None;
+                region.unit = None;
             }
         }
     }
 
-    pub fn get_unit(&self, province: &String) -> Option<Unit> {
-        self.get_province(province).and_then(|p| p.unit.clone())
+    pub fn get_unit(&self, province: &Province) -> Option<Unit> {
+        self.get_region(province).and_then(|r| r.unit.clone())
     }
 
-    fn get_province(&self, province: &String) -> Option<&Province> {
-        self.map.iter().find(|p| p.name == *province)
+    fn get_region(&self, province: &Province) -> Option<&MapRegion> {
+        self.map.iter().find(|r| r.province == *province)
     }
 
     fn resolve(&mut self, id: usize) -> bool {
@@ -304,7 +353,7 @@ impl Stpsyr {
                             to == *move_to,
                         _ => false
                     } && o.province != province).map(|o| o.province.clone())
-                    .collect::<Vec<String>>();
+                    .collect::<Vec<Province>>();
 
                 attack_strength > counter_strength && contesting_orders.iter()
                     .all(|p| attack_strength > self.prevent_strength(&p))
@@ -330,12 +379,12 @@ impl Stpsyr {
         }
     }
 
-    fn convoy_paths(&mut self, order: &Order) -> Vec<Vec<String>> {
+    fn convoy_paths(&mut self, order: &Order) -> Vec<Vec<Province>> {
         match order.action {
             Action::Move { ref to, convoyed } => { if convoyed {
-                let paths: Vec<Vec<String>> = self.find_paths(
-                    vec![self.get_province(&order.province).unwrap()], to)
-                    .iter().map(|path| path.iter().map(|p| p.name.clone()).collect()).collect();
+                let paths: Vec<Vec<Province>> = self.find_paths(
+                    vec![self.get_region(&order.province).unwrap()], to)
+                    .iter().map(|path| path.iter().map(|r| r.province.clone()).collect()).collect();
                 paths.iter().filter(|path| {
                     path.iter().skip(1).all(|&ref p|
                         self.orders.clone().iter().find(|o|
@@ -345,7 +394,7 @@ impl Stpsyr {
                                 }, _ => false
                             } && self.resolve(o.id)
                         ).is_some()
-                    ) && self.get_province(path.last().unwrap()).unwrap()
+                    ) && self.get_region(path.last().unwrap()).unwrap()
                         .fleet_borders.contains(to)
                 }).map(|x|x.clone()).collect()
             } else { panic!("convoy_paths called on non-convoyed Move"); } },
@@ -353,20 +402,20 @@ impl Stpsyr {
         }
     }
 
-    fn find_paths<'a>(&'a self, path: Vec<&'a Province>, target: &String) -> Vec<Vec<&Province>> {
-        let province = path.last().unwrap().clone();
-        if province.fleet_borders.contains(target) { return vec![path]; }
-        self.map.iter().filter(|&p|
-                province.fleet_borders.contains(&p.name) &&
-                !province.army_borders.contains(&p.name) &&
-                !path.contains(&&p)).flat_map(|p| {
+    fn find_paths<'a>(&'a self, path: Vec<&'a MapRegion>, target: &Province) -> Vec<Vec<&MapRegion>> {
+        let region = path.last().unwrap().clone();
+        if region.fleet_borders.contains(target) { return vec![path]; }
+        self.map.iter().filter(|&r|
+                region.fleet_borders.contains(&r.province) &&
+                !region.army_borders.contains(&r.province) &&
+                !path.contains(&&r)).flat_map(|r| {
                     let mut new_path = path.clone();
-                    new_path.push(&p);
+                    new_path.push(&r);
                     self.find_paths(new_path, target)
                 }).collect()
     }
 
-    fn hold_strength(&mut self, province: &String) -> usize {
+    fn hold_strength(&mut self, province: &Province) -> usize {
         if self.get_unit(province).is_some() {
             let move_id = self.orders.iter().find(|o|
                 match o.action {
@@ -387,7 +436,7 @@ impl Stpsyr {
         }
     }
 
-    fn attack_strength(&mut self, province: &String) -> usize {
+    fn attack_strength(&mut self, province: &Province) -> usize {
         let move_order = if let Some(move_order) = self.orders.iter().find(|o|
                 match o.action {
                     Action::Move { to: _, convoyed: _ } => true, _ => false
@@ -407,7 +456,7 @@ impl Stpsyr {
         let attacked_power = if moved_away {
             None
         } else {
-            self.get_province(dest).and_then(|p| p.clone().unit.map(|u| u.owner.clone()))
+            self.get_region(dest).and_then(|r| r.clone().unit.map(|u| u.owner.clone()))
         };
 
         if attacked_power == Some(move_order.owner) { return 0; }
@@ -423,7 +472,7 @@ impl Stpsyr {
         1 + supports.iter().filter(|&id| self.resolve(*id)).count()
     }
 
-    fn defend_strength(&mut self, province: &String) -> usize {
+    fn defend_strength(&mut self, province: &Province) -> usize {
         let move_order = if let Some(move_order) = self.orders.iter().find(|o|
                 match o.action {
                     Action::Move { to: _, convoyed: _ } => true, _ => false
@@ -443,7 +492,7 @@ impl Stpsyr {
         1 + supports.iter().filter(|&id| self.resolve(*id)).count()
     }
 
-    fn prevent_strength(&mut self, province: &String) -> usize {
+    fn prevent_strength(&mut self, province: &Province) -> usize {
         let move_order = if let Some(move_order) = self.orders.iter().find(|o|
                 match o.action {
                     Action::Move { to: _, convoyed: _ } => true, _ => false

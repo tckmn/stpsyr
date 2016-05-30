@@ -3,37 +3,37 @@ use stpsyr::*;
 
 macro_rules! move_order {
     ($s:ident, $power:expr, $from:expr, $to:expr, $convoyed:expr) => (
-        $s.add_order(String::from($power), String::from($from), Action::Move { to: String::from($to), convoyed: $convoyed });
+        $s.add_order(Power::from($power), Province::from($from), Action::Move { to: Province::from($to), convoyed: $convoyed });
     )
 }
 
 macro_rules! support_hold_order {
     ($s:ident, $power:expr, $from:expr, $to:expr) => (
-        $s.add_order(String::from($power), String::from($from), Action::SupportHold { to: String::from($to) });
+        $s.add_order(Power::from($power), Province::from($from), Action::SupportHold { to: Province::from($to) });
     )
 }
 
 macro_rules! support_move_order {
     ($s:ident, $power:expr, $from:expr, $from2:expr, $to:expr) => (
-        $s.add_order(String::from($power), String::from($from), Action::SupportMove { from: String::from($from2), to: String::from($to) });
+        $s.add_order(Power::from($power), Province::from($from), Action::SupportMove { from: Province::from($from2), to: Province::from($to) });
     )
 }
 
 macro_rules! convoy_order {
     ($s:ident, $power:expr, $from:expr, $from2:expr, $to:expr) => (
-        $s.add_order(String::from($power), String::from($from), Action::Convoy { from: String::from($from2), to: String::from($to) });
+        $s.add_order(Power::from($power), Province::from($from), Action::Convoy { from: Province::from($from2), to: Province::from($to) });
     )
 }
 
 macro_rules! assert_empty {
     ($s:ident, $x:expr) => (
-        assert!($s.get_unit(&String::from($x)).is_none());
+        assert!($s.get_unit(&Province::from($x)).is_none());
     )
 }
 
 macro_rules! assert_nonempty {
     ($s:ident, $x:expr) => (
-        assert!($s.get_unit(&String::from($x)).is_some());
+        assert!($s.get_unit(&Province::from($x)).is_some());
     )
 }
 
@@ -118,7 +118,7 @@ fn test_datc_6a8() {
     support_move_order!(s, "Italy", "tyr", "ven", "tri");
     let dislodged = s.apply_orders();
     assert_eq!(dislodged.len(), 1);
-    assert_eq!(dislodged[0].0, "tri");
+    assert_eq!(dislodged[0].0, Province::from("tri"));
 }
 
 #[test]
@@ -142,7 +142,7 @@ fn test_datc_6a10() {
     support_move_order!(s, "Italy", "rom", "apu", "ven");
     move_order!(s, "Italy", "apu", "ven", false);
     s.apply_orders();
-    assert_eq!(s.get_unit(&String::from("ven")).unwrap().owner, "Austria");
+    assert_eq!(s.get_unit(&Province::from("ven")).unwrap().owner, Power::from("Austria"));
 }
 
 #[test]
