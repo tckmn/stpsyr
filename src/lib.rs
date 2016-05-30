@@ -3,12 +3,12 @@ extern crate csv;
 use std::fmt;
 
 #[derive(Clone,Copy,Debug)]
-enum UnitType { Army, Fleet }
+pub enum UnitType { Army, Fleet }
 
 #[derive(Clone)]
 pub struct Unit {
-    owner: String,
-    unit_type: UnitType
+    pub owner: String,
+    pub unit_type: UnitType
 }
 impl fmt::Debug for Unit {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -56,10 +56,22 @@ struct Order {
     id: usize
 }
 
+pub enum RetreatAction {
+    Disband,
+    Move { to: String }
+}
+
+struct Retreat {
+    owner: String,
+    province: String,
+    action: RetreatAction
+}
+
 pub struct Stpsyr {
     map: Vec<Province>,
     orders: Vec<Order>,
-    dependencies: Vec<usize>
+    dependencies: Vec<usize>,
+    dislodged: Vec<(String, Unit)>
 }
 
 impl Stpsyr {
@@ -88,18 +100,28 @@ impl Stpsyr {
                     }
                 }),
                 fleet_borders: province.4.split_whitespace().map(String::from).collect(),
-                army_borders: province.4.split_whitespace().map(String::from).collect()
+                army_borders: province.5.split_whitespace().map(String::from).collect()
             }
         }).collect();
 
-        Stpsyr { map: map, orders: vec![], dependencies: vec![] }
+        Stpsyr { map: map, orders: vec![], dependencies: vec![], dislodged: vec![] }
     }
 
     pub fn add_order(&mut self, owner: String, province: String, action: Action) {
         let unit = if let Some(unit) = self.get_unit(&province) { unit }
             else { return; };
-        // TODO:
-        let convoyed = match action { Action::Move { to: _, convoyed } => convoyed, _ => false };
+        // TODO use this
+        let convoyed = match action {
+            Action::Move { ref to, convoyed } => {
+                if province == *to { return; }
+                convoyed
+            },
+            Action::SupportMove { ref from, ref to } => {
+                if *from == *to { return; }
+                false
+            }
+            _ => false
+        };
         if unit.owner == owner &&
                 match &action {
                     &Action::Move { ref to, convoyed: _ } |
@@ -125,38 +147,43 @@ impl Stpsyr {
         }
     }
 
-    pub fn apply_orders(&mut self) {
+    pub fn apply_orders(&mut self) -> Vec<(String, Unit)> {
         for i in 0..self.orders.len() {
             self.resolve(i);
             println!("{:?}", self.orders[i]);
         }
 
-        let mut dislodged: Vec<String> = vec![];
+        let mut dislodged: Vec<(String, Unit)> = vec![];
         let mut moved_away: Vec<String> = vec![];
         for order in self.orders.iter() { if order.resolution {
             match order.action { Action::Move { ref to, convoyed: _ } => {
                 let from_idx = self.map.iter().position(|p| p.name == order.province).unwrap();
                 let to_idx = self.map.iter().position(|p| p.name == *to).unwrap();
-                if self.map[to_idx].unit.is_some() {
-                    dislodged.push(to.clone());
+                if let Some(ref unit) = self.map[to_idx].unit {
+                    dislodged.push((to.clone(), unit.clone()));
                 }
                 self.map[to_idx].unit = self.map[from_idx].unit.clone();
                 self.map[to_idx].owner = self.map[from_idx].owner.clone();
                 moved_away.push(order.province.clone());
             }, _ => {} }
         } }
+        self.orders = vec![];
 
         for province in self.map.iter_mut() {
-            let p_dislodged = dislodged.contains(&province.name);
+            let p_dislodged = dislodged.iter().find(|d| d.0 == province.name);
             let p_moved_away = moved_away.contains(&province.name);
-            if p_dislodged && !p_moved_away {
-                // TODO handle dislodged unit
-            } else if p_moved_away && !p_dislodged {
+            if let Some(dislodgement) = p_dislodged {
+                if !p_moved_away {
+                    self.dislodged.push(dislodgement.clone());
+                }
+            } else if p_moved_away {
                 province.unit = None;
             }
         }
 
         println!("{:?}", self.map);
+
+        self.dislodged.clone()
     }
 
     pub fn get_unit(&self, province: &String) -> Option<Unit> {
@@ -278,7 +305,7 @@ impl Stpsyr {
                             province == *move_to,
                         _ => false
                     } && o.province != to
-                    && o.owner != self.orders[id].owner).is_some()
+                    && o.owner != self.orders[id].owner).is_none()
             },
 
             Action::Convoy { from, to } => {
