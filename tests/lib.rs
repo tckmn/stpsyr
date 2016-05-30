@@ -19,6 +19,12 @@ macro_rules! support_move_order {
     )
 }
 
+macro_rules! convoy_order {
+    ($s:ident, $power:expr, $from:expr, $from2:expr, $to:expr) => (
+        $s.add_order(String::from($power), String::from($from), Action::Convoy { from: String::from($from2), to: String::from($to) });
+    )
+}
+
 macro_rules! assert_empty {
     ($s:ident, $x:expr) => (
         assert!($s.get_unit(&String::from($x)).is_none());
@@ -128,4 +134,16 @@ fn test_datc_6a12() {
     move_order!(s, "Germany", "mun", "tyr", false);
     s.apply_orders();
     assert_empty!(s, "tyr");
+}
+
+#[test]
+fn test_convoy() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Italy", "nap", "ion", false);
+    move_order!(s, "Italy", "rom", "apu", false);
+    s.apply_orders();
+    convoy_order!(s, "Italy", "ion", "apu", "tun");
+    move_order!(s, "Italy", "apu", "tun", true);
+    s.apply_orders();
+    assert_nonempty!(s, "tun");
 }
