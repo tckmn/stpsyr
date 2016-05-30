@@ -72,11 +72,39 @@ fn test_datc_6a4() {
 }
 
 #[test]
+fn test_datc_6a5() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Italy", "rom", "ven", false);
+    move_order!(s, "Italy", "ven", "tyr", false);
+    move_order!(s, "Austria", "bud", "tri", false);
+    move_order!(s, "Austria", "tri", "adr", false);
+    s.apply_orders();
+    move_order!(s, "Italy", "ven", "tri", false);
+    support_move_order!(s, "Italy", "tyr", "ven", "tri");
+    convoy_order!(s, "Austria", "adr", "tri", "tri");
+    move_order!(s, "Austria", "tri", "tri", true);
+    support_move_order!(s, "Austria", "vie", "tri", "tri");
+    s.apply_orders();
+    assert_empty!(s, "ven");
+}
+
+#[test]
 fn test_datc_6a6() {
     let mut s = Stpsyr::new("data/standard.csv");
     move_order!(s, "Germany", "lon", "nth", false);
     s.apply_orders();
     assert_empty!(s, "nth");
+}
+
+#[test]
+fn test_datc_6a7() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "England", "edi", "nth", false);
+    s.apply_orders();
+    convoy_order!(s, "England", "nth", "lon", "bel");
+    move_order!(s, "England", "lon", "bel", true);
+    s.apply_orders();
+    assert_empty!(s, "bel");
 }
 
 #[test]

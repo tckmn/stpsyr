@@ -3,7 +3,7 @@ extern crate csv;
 use std::fmt;
 use std::cmp;
 
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone,Copy,Debug,PartialEq)]
 pub enum UnitType { Army, Fleet }
 
 #[derive(Clone)]
@@ -116,6 +116,7 @@ impl Stpsyr {
     pub fn add_order(&mut self, owner: String, province: String, action: Action) {
         let unit = if let Some(unit) = self.get_unit(&province) { unit }
             else { return; };
+
         let convoyed = match action {
             Action::Move { ref to, convoyed } => {
                 if province == *to { return; }
@@ -127,6 +128,8 @@ impl Stpsyr {
             }
             _ => false
         }; // TODO use this better
+        if convoyed && unit.unit_type == UnitType::Fleet { return; }
+
         if unit.owner == owner &&
                 (convoyed || match &action {
                     &Action::Move { ref to, convoyed: _ } |
