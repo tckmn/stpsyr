@@ -19,14 +19,26 @@ macro_rules! support_move_order {
     )
 }
 
+macro_rules! assert_empty {
+    ($s:ident, $x:expr) => (
+        assert!($s.get_unit(&String::from($x)).is_none());
+    )
+}
+
+macro_rules! assert_nonempty {
+    ($s:ident, $x:expr) => (
+        assert!($s.get_unit(&String::from($x)).is_some());
+    )
+}
+
 #[test]
 fn test_datc_6a1() {
     let mut s = Stpsyr::new("data/standard.csv");
     move_order!(s, "England", "lon", "pic", false);
     move_order!(s, "Italy", "rom", "tun", false);
     s.apply_orders();
-    assert!(s.get_unit(&String::from("pic")).is_none());
-    assert!(s.get_unit(&String::from("tun")).is_none());
+    assert_empty!(s, "pic");
+    assert_empty!(s, "tun");
 }
 
 #[test]
@@ -34,7 +46,7 @@ fn test_datc_6a2() {
     let mut s = Stpsyr::new("data/standard.csv");
     move_order!(s, "England", "lvp", "iri", false);
     s.apply_orders();
-    assert!(s.get_unit(&String::from("iri")).is_none());
+    assert_empty!(s, "iri");
 }
 
 #[test]
@@ -42,7 +54,7 @@ fn test_datc_6a3() {
     let mut s = Stpsyr::new("data/standard.csv");
     move_order!(s, "Germany", "kie", "ruh", false);
     s.apply_orders();
-    assert!(s.get_unit(&String::from("ruh")).is_none());
+    assert_empty!(s, "ruh");
 }
 
 #[test]
@@ -50,7 +62,7 @@ fn test_datc_6a4() {
     let mut s = Stpsyr::new("data/standard.csv");
     move_order!(s, "Germany", "kie", "kie", false);
     s.apply_orders();
-    assert!(s.get_unit(&String::from("kie")).is_some());
+    assert_nonempty!(s, "kie");
 }
 
 #[test]
@@ -58,7 +70,7 @@ fn test_datc_6a6() {
     let mut s = Stpsyr::new("data/standard.csv");
     move_order!(s, "Germany", "lon", "nth", false);
     s.apply_orders();
-    assert!(s.get_unit(&String::from("nth")).is_none());
+    assert_empty!(s, "nth");
 }
 
 #[test]
@@ -82,7 +94,7 @@ fn test_datc_6a9() {
     move_order!(s, "Turkey", "smy", "con", false);
     move_order!(s, "Turkey", "ank", "smy", false);
     s.apply_orders();
-    assert!(s.get_unit(&String::from("smy")).is_none());
+    assert_empty!(s, "smy");
 }
 
 #[test]
@@ -97,4 +109,13 @@ fn test_datc_6a10() {
     move_order!(s, "Italy", "apu", "ven", false);
     s.apply_orders();
     assert_eq!(s.get_unit(&String::from("ven")).unwrap().owner, "Austria");
+}
+
+#[test]
+fn test_datc_6a11() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Italy", "ven", "tyr", false);
+    move_order!(s, "Austria", "vie", "tyr", false);
+    s.apply_orders();
+    assert_empty!(s, "tyr");
 }
