@@ -6,7 +6,7 @@ use std::fmt;
 enum UnitType { Army, Fleet }
 
 #[derive(Clone)]
-struct Unit {
+pub struct Unit {
     owner: String,
     unit_type: UnitType
 }
@@ -96,18 +96,36 @@ impl Stpsyr {
     }
 
     pub fn add_order(&mut self, owner: String, province: String, action: Action) {
-        let id = self.orders.len();
-        self.orders.push(Order {
-            owner: owner,
-            province: province,
-            action: action,
-            resolution: false,
-            state: OrderState::UNRESOLVED,
-            id: id
-        });
+        let unit = if let Some(unit) = self.get_unit(&province) { unit }
+            else { return; };
+        // TODO:
+        let convoyed = match action { Action::Move { to: _, convoyed } => convoyed, _ => false };
+        if unit.owner == owner &&
+                match &action {
+                    &Action::Move { ref to, convoyed: _ } |
+                    &Action::SupportHold { ref to } |
+                    &Action::SupportMove { from: _, ref to } => {
+                        let p = self.get_province(&province).unwrap();
+                        match unit.unit_type {
+                            UnitType::Army => &p.army_borders,
+                            UnitType::Fleet => &p.fleet_borders
+                        }.contains(&to)
+                    },
+                    _ => true
+                } {
+            let id = self.orders.len();
+            self.orders.push(Order {
+                owner: owner,
+                province: province,
+                action: action,
+                resolution: false,
+                state: OrderState::UNRESOLVED,
+                id: id
+            });
+        }
     }
 
-    pub fn apply_orders(mut self) {
+    pub fn apply_orders(&mut self) {
         for i in 0..self.orders.len() {
             self.resolve(i);
             println!("{:?}", self.orders[i]);
@@ -115,7 +133,7 @@ impl Stpsyr {
 
         let mut dislodged: Vec<String> = vec![];
         let mut moved_away: Vec<String> = vec![];
-        for order in self.orders { if order.resolution {
+        for order in self.orders.iter() { if order.resolution {
             match order.action { Action::Move { ref to, convoyed: _ } => {
                 let from_idx = self.map.iter().position(|p| p.name == order.province).unwrap();
                 let to_idx = self.map.iter().position(|p| p.name == *to).unwrap();
@@ -124,7 +142,7 @@ impl Stpsyr {
                 }
                 self.map[to_idx].unit = self.map[from_idx].unit.clone();
                 self.map[to_idx].owner = self.map[from_idx].owner.clone();
-                moved_away.push(order.province);
+                moved_away.push(order.province.clone());
             }, _ => {} }
         } }
 
@@ -139,6 +157,14 @@ impl Stpsyr {
         }
 
         println!("{:?}", self.map);
+    }
+
+    pub fn get_unit(&self, province: &String) -> Option<Unit> {
+        self.get_province(province).and_then(|p| p.unit.clone())
+    }
+
+    fn get_province(&self, province: &String) -> Option<&Province> {
+        self.map.iter().find(|p| p.name == *province)
     }
 
     fn resolve(&mut self, id: usize) -> bool {
@@ -264,7 +290,7 @@ impl Stpsyr {
     }
 
     fn hold_strength(&mut self, province: String) -> usize {
-        if self.map.iter().find(|p| p.name == province).unwrap().unit.is_some() {
+        if self.get_unit(&province).is_some() {
             let move_id = self.orders.iter().find(|o|
                 match o.action {
                     Action::Move { to: _, convoyed: _ } => true, _ => false
@@ -305,7 +331,7 @@ impl Stpsyr {
         let attacked_power = if moved_away {
             None
         } else {
-            self.map.iter().find(|p| p.name == dest).and_then(|p| p.owner.clone())
+            self.get_province(&dest).and_then(|p| p.owner.clone())
         };
 
         if attacked_power == Some(move_order.owner) { return 0; }
