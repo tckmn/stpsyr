@@ -88,10 +88,10 @@ struct MapRegion {
 impl fmt::Debug for MapRegion {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}{}{}{}",
-               self.province,
-               if self.sc { "*" } else { "" },
-               self.owner.as_ref().map_or(String::new(), |o| format!(" ({:?})", o)),
-               self.unit.as_ref().map_or(String::new(), |o| format!(" [{:?}]", o)))
+            self.province,
+            if self.sc { "*" } else { "" },
+            self.owner.as_ref().map_or(String::new(), |o| format!(" ({:?})", o)),
+            self.unit.as_ref().map_or(String::new(), |o| format!(" [{:?}]", o)))
     }
 }
 impl cmp::PartialEq for MapRegion {
@@ -165,6 +165,7 @@ impl Stpsyr {
             MapRegion {
                 province: Province::from(region.0.clone()),
                 sc: region.1,
+
                 owner: region.2.clone().map(Power::from),
                 unit: region.3.as_ref().map(|unit_type| Unit {
                     owner: Power::from(region.2.clone().unwrap()),
@@ -174,12 +175,20 @@ impl Stpsyr {
                         _ => panic!("unit type must be Army or Fleet")
                     }
                 }),
-                fleet_borders: region.4.split_whitespace().map(Province::from).collect(),
-                army_borders: region.5.split_whitespace().map(Province::from).collect()
+
+                fleet_borders: region.4.split_whitespace()
+                    .map(Province::from).collect(),
+                army_borders: region.5.split_whitespace()
+                    .map(Province::from).collect()
             }
         }).collect();
 
-        Stpsyr { map: map, orders: vec![], dependencies: vec![], dislodged: vec![] }
+        Stpsyr {
+            map: map,
+            orders: vec![],
+            dependencies: vec![],
+            dislodged: vec![]
+        }
     }
 
     // the publicly exposed function to modify self.orders
@@ -264,11 +273,15 @@ impl Stpsyr {
         for order in self.orders.iter() { if order.resolution {
             match order.action { Action::Move { ref to, convoyed: _ } => {
                 // we have a successful move
-                let from_idx = self.map.iter().position(|r| r.province == order.province).unwrap();
-                let to_idx = self.map.iter().position(|r| r.province == *to).unwrap();
+                let from_idx = self.map.iter()
+                    .position(|r| r.province == order.province).unwrap();
+                let to_idx = self.map.iter()
+                    .position(|r| r.province == *to).unwrap();
+
                 if let Some(ref unit) = self.map[to_idx].unit {
                     dislodged.push((to.clone(), unit.clone()));
                 }
+
                 self.map[to_idx].unit = old_map[from_idx].unit.clone();
                 self.map[to_idx].owner = old_map[from_idx].owner.clone();
                 moved_away.push(&order.province);
@@ -450,7 +463,9 @@ impl Stpsyr {
                 //   the province of the order to the destination
                 let paths: Vec<Vec<Province>> = self.find_paths(
                     vec![self.get_region(&order.province).unwrap()], to)
-                    .iter().map(|path| path.iter().map(|r| r.province.clone()).collect()).collect();
+                    .iter().map(|path|
+                        path.iter().map(|r| r.province.clone()).collect()
+                    ).collect();
 
                 // now filter those paths for the ones that are actually valid
                 paths.iter().filter(|path| {
@@ -473,7 +488,8 @@ impl Stpsyr {
     }
 
     // utility function used from convoy_paths (see above)
-    fn find_paths<'a>(&'a self, path: Vec<&'a MapRegion>, target: &Province) -> Vec<Vec<&MapRegion>> {
+    fn find_paths<'a>(&'a self, path: Vec<&'a MapRegion>, target: &Province)
+            -> Vec<Vec<&MapRegion>> {
         // the "end" of the current chain
         let region = path.last().unwrap().clone();
         // if we've made it already, return
@@ -553,7 +569,8 @@ impl Stpsyr {
         let attacked_power = if moved_away {
             None
         } else {
-            self.get_region(dest).and_then(|r| r.clone().unit.map(|u| u.owner.clone()))
+            self.get_region(dest)
+                .and_then(|r| r.clone().unit.map(|u| u.owner.clone()))
         };
 
         // because if we attack ourselves, attack strength is always 0
@@ -566,7 +583,8 @@ impl Stpsyr {
                 Action::SupportMove { ref from, ref to } =>
                     *from == *province && *to == *dest,
                 _ => false
-            } && attacked_power.as_ref().map_or(true, |attacked| *attacked != o.owner))
+            } &&
+            attacked_power.as_ref().map_or(true, |power| *power != o.owner))
             .map(|o| o.id).collect();
 
         1 + supports.iter().filter(|&id| self.resolve(*id)).count()
@@ -613,7 +631,8 @@ impl Stpsyr {
         // if we're in a head-to-head battle and lose, prevent strength is 0
         let move_id = self.orders.iter().find(|o|
             match o.action {
-                Action::Move { ref to, convoyed: _ } => *to == *province, _ => false
+                Action::Move { ref to, convoyed: _ } => *to == *province,
+                _ => false
             } && o.province == *dest).map(|o| o.id);
         if let Some(move_id) = move_id {
             if self.resolve(move_id) { return 0; }
