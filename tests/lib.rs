@@ -1,11 +1,29 @@
 extern crate stpsyr;
 use stpsyr::*;
 
+macro_rules! move_order {
+    ($s:ident, $power:expr, $from:expr, $to:expr, $convoyed:expr) => (
+        $s.add_order(String::from($power), String::from($from), Action::Move { to: String::from($to), convoyed: $convoyed });
+    )
+}
+
+macro_rules! support_hold_order {
+    ($s:ident, $power:expr, $from:expr, $to:expr) => (
+        $s.add_order(String::from($power), String::from($from), Action::SupportHold { to: String::from($to) });
+    )
+}
+
+macro_rules! support_move_order {
+    ($s:ident, $power:expr, $from:expr, $from2:expr, $to:expr) => (
+        $s.add_order(String::from($power), String::from($from), Action::SupportMove { from: String::from($from2), to: String::from($to) });
+    )
+}
+
 #[test]
 fn test_datc_6a1() {
     let mut s = Stpsyr::new("data/standard.csv");
-    s.add_order(String::from("England"), String::from("lon"), Action::Move { to: String::from("pic"), convoyed: false });
-    s.add_order(String::from("Italy"), String::from("rom"), Action::Move { to: String::from("tun"), convoyed: false });
+    move_order!(s, "England", "lon", "pic", false);
+    move_order!(s, "Italy", "rom", "tun", false);
     s.apply_orders();
     assert!(s.get_unit(&String::from("pic")).is_none());
     assert!(s.get_unit(&String::from("tun")).is_none());
@@ -14,7 +32,7 @@ fn test_datc_6a1() {
 #[test]
 fn test_datc_6a2() {
     let mut s = Stpsyr::new("data/standard.csv");
-    s.add_order(String::from("England"), String::from("lvp"), Action::Move { to: String::from("iri"), convoyed: false });
+    move_order!(s, "England", "lvp", "iri", false);
     s.apply_orders();
     assert!(s.get_unit(&String::from("iri")).is_none());
 }
@@ -22,7 +40,7 @@ fn test_datc_6a2() {
 #[test]
 fn test_datc_6a3() {
     let mut s = Stpsyr::new("data/standard.csv");
-    s.add_order(String::from("Germany"), String::from("kie"), Action::Move { to: String::from("ruh"), convoyed: false });
+    move_order!(s, "Germany", "kie", "ruh", false);
     s.apply_orders();
     assert!(s.get_unit(&String::from("ruh")).is_none());
 }
@@ -30,7 +48,7 @@ fn test_datc_6a3() {
 #[test]
 fn test_datc_6a4() {
     let mut s = Stpsyr::new("data/standard.csv");
-    s.add_order(String::from("Germany"), String::from("kie"), Action::Move { to: String::from("kie"), convoyed: false });
+    move_order!(s, "Germany", "kie", "kie", false);
     s.apply_orders();
     assert!(s.get_unit(&String::from("kie")).is_some());
 }
@@ -38,7 +56,7 @@ fn test_datc_6a4() {
 #[test]
 fn test_datc_6a6() {
     let mut s = Stpsyr::new("data/standard.csv");
-    s.add_order(String::from("Germany"), String::from("lon"), Action::Move { to: String::from("nth"), convoyed: false });
+    move_order!(s, "Germany", "lon", "nth", false);
     s.apply_orders();
     assert!(s.get_unit(&String::from("nth")).is_none());
 }
@@ -46,12 +64,12 @@ fn test_datc_6a6() {
 #[test]
 fn test_datc_6a8() {
     let mut s = Stpsyr::new("data/standard.csv");
-    s.add_order(String::from("Italy"), String::from("rom"), Action::Move { to: String::from("ven"), convoyed: false });
-    s.add_order(String::from("Italy"), String::from("ven"), Action::Move { to: String::from("tyr"), convoyed: false });
+    move_order!(s, "Italy", "rom", "ven", false);
+    move_order!(s, "Italy", "ven", "tyr", false);
     s.apply_orders();
-    s.add_order(String::from("Austria"), String::from("tri"), Action::SupportHold { to: String::from("tri") });
-    s.add_order(String::from("Italy"), String::from("ven"), Action::Move { to: String::from("tri"), convoyed: false });
-    s.add_order(String::from("Italy"), String::from("tyr"), Action::SupportMove { from: String::from("ven"), to: String::from("tri") });
+    support_hold_order!(s, "Austria", "tri", "tri");
+    move_order!(s, "Italy", "ven", "tri", false);
+    support_move_order!(s, "Italy", "tyr", "ven", "tri");
     let dislodged = s.apply_orders();
     assert_eq!(dislodged.len(), 1);
     assert_eq!(dislodged[0].0, "tri");
@@ -60,9 +78,9 @@ fn test_datc_6a8() {
 #[test]
 fn test_datc_6a9() {
     let mut s = Stpsyr::new("data/standard.csv");
-    s.add_order(String::from("Turkey"), String::from("con"), Action::Move { to: String::from("bul"), convoyed: false });
-    s.add_order(String::from("Turkey"), String::from("smy"), Action::Move { to: String::from("con"), convoyed: false });
-    s.add_order(String::from("Turkey"), String::from("ank"), Action::Move { to: String::from("smy"), convoyed: false });
+    move_order!(s, "Turkey", "con", "bul", false);
+    move_order!(s, "Turkey", "smy", "con", false);
+    move_order!(s, "Turkey", "ank", "smy", false);
     s.apply_orders();
     assert!(s.get_unit(&String::from("smy")).is_none());
 }
@@ -70,13 +88,13 @@ fn test_datc_6a9() {
 #[test]
 fn test_datc_6a10() {
     let mut s = Stpsyr::new("data/standard.csv");
-    s.add_order(String::from("Italy"), String::from("rom"), Action::Move { to: String::from("apu"), convoyed: false });
-    s.add_order(String::from("Italy"), String::from("nap"), Action::Move { to: String::from("rom"), convoyed: false });
-    s.add_order(String::from("Italy"), String::from("ven"), Action::Move { to: String::from("tyr"), convoyed: false });
-    s.add_order(String::from("Austria"), String::from("tri"), Action::Move { to: String::from("ven"), convoyed: false });
+    move_order!(s, "Italy", "rom", "apu", false);
+    move_order!(s, "Italy", "nap", "rom", false);
+    move_order!(s, "Italy", "ven", "tyr", false);
+    move_order!(s, "Austria", "tri", "ven", false);
     s.apply_orders();
-    s.add_order(String::from("Italy"), String::from("rom"), Action::SupportMove { from: String::from("apu"), to: String::from("ven") });
-    s.add_order(String::from("Italy"), String::from("apu"), Action::Move { to: String::from("ven"), convoyed: false });
+    support_move_order!(s, "Italy", "rom", "apu", "ven");
+    move_order!(s, "Italy", "apu", "ven", false);
     s.apply_orders();
     assert_eq!(s.get_unit(&String::from("ven")).unwrap().owner, "Austria");
 }
