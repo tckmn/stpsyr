@@ -153,8 +153,17 @@ impl Stpsyr {
             println!("{:?}", self.orders[i]);
         }
 
+        self.apply_resolved();
+        println!("{:?}", self.map);
+
+        self.orders = vec![];
+        self.dislodged.clone()
+    }
+
+    fn apply_resolved(&mut self) {
         let mut dislodged: Vec<(String, Unit)> = vec![];
-        let mut moved_away: Vec<String> = vec![];
+        let mut moved_away: Vec<&String> = vec![];
+        let old_map = self.map.clone();
         for order in self.orders.iter() { if order.resolution {
             match order.action { Action::Move { ref to, convoyed: _ } => {
                 let from_idx = self.map.iter().position(|p| p.name == order.province).unwrap();
@@ -162,16 +171,15 @@ impl Stpsyr {
                 if let Some(ref unit) = self.map[to_idx].unit {
                     dislodged.push((to.clone(), unit.clone()));
                 }
-                self.map[to_idx].unit = self.map[from_idx].unit.clone();
-                self.map[to_idx].owner = self.map[from_idx].owner.clone();
-                moved_away.push(order.province.clone());
+                self.map[to_idx].unit = old_map[from_idx].unit.clone();
+                self.map[to_idx].owner = old_map[from_idx].owner.clone();
+                moved_away.push(&order.province);
             }, _ => {} }
         } }
-        self.orders = vec![];
 
         for province in self.map.iter_mut() {
             let p_dislodged = dislodged.iter().find(|d| d.0 == province.name);
-            let p_moved_away = moved_away.contains(&province.name);
+            let p_moved_away = moved_away.contains(&&province.name);
             if let Some(dislodgement) = p_dislodged {
                 if !p_moved_away {
                     self.dislodged.push(dislodgement.clone());
@@ -180,10 +188,6 @@ impl Stpsyr {
                 province.unit = None;
             }
         }
-
-        println!("{:?}", self.map);
-
-        self.dislodged.clone()
     }
 
     pub fn get_unit(&self, province: &String) -> Option<Unit> {
@@ -271,7 +275,7 @@ impl Stpsyr {
             },
 
             Action::Move { to, convoyed } => {
-                let attack_strength = self.attack_strength(province.clone());
+                let attack_strength = self.attack_strength(&province);
 
                 let counter_strength = if self.orders.iter().find(|o|
                         match o.action {
@@ -280,10 +284,10 @@ impl Stpsyr {
                             _ => false
                         } && o.province == to).is_some() {
                     // head to head battle
-                    self.defend_strength(to.clone())
+                    self.defend_strength(&to)
                 } else {
                     // no head to head
-                    self.hold_strength(to.clone())
+                    self.hold_strength(&to)
                 };
 
                 let contesting_orders = self.orders.iter().filter(|o|
@@ -295,7 +299,7 @@ impl Stpsyr {
                     .collect::<Vec<String>>();
 
                 attack_strength > counter_strength && contesting_orders.iter()
-                    .all(|p| attack_strength > self.prevent_strength(p.clone()))
+                    .all(|p| attack_strength > self.prevent_strength(&p))
             },
 
             Action::SupportHold { to } | Action::SupportMove { from: _, to } => {
@@ -316,19 +320,19 @@ impl Stpsyr {
         }
     }
 
-    fn hold_strength(&mut self, province: String) -> usize {
-        if self.get_unit(&province).is_some() {
+    fn hold_strength(&mut self, province: &String) -> usize {
+        if self.get_unit(province).is_some() {
             let move_id = self.orders.iter().find(|o|
                 match o.action {
                     Action::Move { to: _, convoyed: _ } => true, _ => false
-                } && o.province == province).map(|o| o.id);
+                } && o.province == *province).map(|o| o.id);
 
             if let Some(move_id) = move_id {
                 if self.resolve(move_id) { 0 } else { 1 }
             } else {
                 1 + self.orders.clone().iter().filter(|o|
                     match o.action {
-                        Action::SupportHold { ref to } => *to == province,
+                        Action::SupportHold { ref to } => *to == *province,
                         _ => false
                     } && self.resolve(o.id)).count()
             }
@@ -339,26 +343,26 @@ impl Stpsyr {
 
     // TODO check path (for convoys)
     // (and add that to prevent_strength, support checks in adjudicate also)
-    fn attack_strength(&mut self, province: String) -> usize {
+    fn attack_strength(&mut self, province: &String) -> usize {
         let move_order = if let Some(move_order) = self.orders.iter().find(|o|
                 match o.action {
                     Action::Move { to: _, convoyed: _ } => true, _ => false
-                } && o.province == province) { move_order }
+                } && o.province == *province) { move_order }
             else { return 0; }.clone();
         let dest = match move_order.action {
-            Action::Move { ref to, convoyed: _ } => to.clone(),
+            Action::Move { ref to, convoyed: _ } => to,
             _ => unreachable!()
         };
 
         let move_id = self.orders.iter().find(|o|
             match o.action {
-                Action::Move { ref to, convoyed: _ } => *to != province, _ => false
-            } && o.province == dest).map(|o| o.id);
+                Action::Move { ref to, convoyed: _ } => *to != *province, _ => false
+            } && o.province == *dest).map(|o| o.id);
         let moved_away = move_id.map_or(false, |id| self.resolve(id));
         let attacked_power = if moved_away {
             None
         } else {
-            self.get_province(&dest).and_then(|p| p.owner.clone())
+            self.get_province(dest).and_then(|p| p.owner.clone())
         };
 
         if attacked_power == Some(move_order.owner) { return 0; }
@@ -366,46 +370,46 @@ impl Stpsyr {
         1 + self.orders.clone().iter().filter(|o|
             match o.action {
                 Action::SupportMove { ref from, ref to } =>
-                    *from == province && *to == dest,
+                    *from == *province && *to == *dest,
                 _ => false
             } && attacked_power.as_ref().map_or(true, |attacked| *attacked != o.owner)
             && self.resolve(o.id)).count()
     }
 
-    fn defend_strength(&mut self, province: String) -> usize {
+    fn defend_strength(&mut self, province: &String) -> usize {
         let move_order = if let Some(move_order) = self.orders.iter().find(|o|
                 match o.action {
                     Action::Move { to: _, convoyed: _ } => true, _ => false
-                } && o.province == province) { move_order }
+                } && o.province == *province) { move_order }
             else { return 0; }.clone();
         let dest = match move_order.action {
-            Action::Move { ref to, convoyed: _ } => to.clone(),
+            Action::Move { ref to, convoyed: _ } => to,
             _ => unreachable!()
         };
 
         1 + self.orders.clone().iter().filter(|o|
             match o.action {
                 Action::SupportMove { ref from, ref to } =>
-                    *from == province && *to == dest,
+                    *from == *province && *to == *dest,
                 _ => false
             } && self.resolve(o.id)).count()
     }
 
-    fn prevent_strength(&mut self, province: String) -> usize {
+    fn prevent_strength(&mut self, province: &String) -> usize {
         let move_order = if let Some(move_order) = self.orders.iter().find(|o|
                 match o.action {
                     Action::Move { to: _, convoyed: _ } => true, _ => false
-                } && o.province == province) { move_order }
+                } && o.province == *province) { move_order }
             else { return 0; }.clone();
         let dest = match move_order.action {
-            Action::Move { ref to, convoyed: _ } => to.clone(),
+            Action::Move { ref to, convoyed: _ } => to,
             _ => unreachable!()
         };
 
         let move_id = self.orders.iter().find(|o|
             match o.action {
-                Action::Move { ref to, convoyed: _ } => *to == province, _ => false
-            } && o.province == dest).map(|o| o.id);
+                Action::Move { ref to, convoyed: _ } => *to == *province, _ => false
+            } && o.province == *dest).map(|o| o.id);
         if let Some(move_id) = move_id {
             if self.resolve(move_id) { return 0; }
         }
@@ -413,7 +417,7 @@ impl Stpsyr {
         1 + self.orders.clone().iter().filter(|o|
             match o.action {
                 Action::SupportMove { ref from, ref to } =>
-                    *from == province && *to == dest,
+                    *from == *province && *to == *dest,
                 _ => false
             } && self.resolve(o.id)).count()
     }
