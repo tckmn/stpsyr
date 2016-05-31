@@ -18,15 +18,20 @@ impl fmt::Debug for Unit {
 #[derive(Clone,Copy,Debug,PartialEq)]
 pub enum UnitType { Army, Fleet }
 
-// a Province is an extension of a String to separate storage of its name and
-//   which coast it refers to, if any
-// it has separate utility methods for comparing with respect to coasts
-//   (coast_eq) or not (==)
-// ex. stp/sc, syr, nao
-#[derive(Clone,Debug)]
+// a Province is an extension of a String, partially for semantics, but also
+//   because we need to take coasts into account when enumerating borders
+#[derive(Clone)]
 pub struct Province {
     name: String,
-    coast: Option<char>
+    coast: Option<char>,
+    from_coast: Option<char>
+}
+impl fmt::Debug for Province {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}{}{}", self.name,
+            self.coast.map_or(String::new(), |coast| format!("/{}c", coast)),
+            self.from_coast.map_or(String::new(), |coast| format!(" [from {}c]", coast)))
+    }
 }
 impl From<String> for Province {
     fn from(s: String) -> Province {
@@ -34,9 +39,9 @@ impl From<String> for Province {
             let mut s = s;
             let coast = s.chars().nth(idx + 1);
             s.truncate(idx);
-            Province { name: s, coast: coast }
+            Province { name: s, coast: coast, from_coast: None }
         } else {
-            Province { name: s, coast: None }
+            Province { name: s, coast: None, from_coast: None }
         }
     }
 }
@@ -50,17 +55,17 @@ impl cmp::PartialEq for Province {
         self.name == other.name
     }
 }
-impl Province {
-    fn coast_eq(&self, other: &Province) -> bool {
-        self.name == other.name && self.coast == other.coast
-    }
-}
 
 // a Power is simply a wrapper around a String for semantics
 // ex. Germany, Austria
-#[derive(Clone,Debug,PartialEq)]
+#[derive(Clone,PartialEq)]
 pub struct Power {
     name: String
+}
+impl fmt::Debug for Power {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 impl From<String> for Power {
     fn from(s: String) -> Power {
@@ -153,17 +158,36 @@ impl Stpsyr {
         // parse input file as CSV to generate the map
         let mut reader = csv::Reader::from_file(mapfile).unwrap();
 
-        let map: Vec<MapRegion> = reader.decode::<(
+        let mut map: Vec<MapRegion> = Vec::new();
+        for region in reader.decode::<(
                     String,          // 0 name
                     bool,            // 1 SC?
                     Option<String>,  // 2 starting owner
                     Option<String>,  // 3 starting unit type
                     String,          // 4 bordering provinces (fleets)
                     String           // 5 bordering provinces (armies)
-                )>().map(|region| {
+                )>() {
             let region = region.unwrap();
-            MapRegion {
-                province: Province::from(region.0.clone()),
+            let province = Province::from(region.0.clone());
+
+            let fleet_borders: Vec<Province> = region.4.split_whitespace().map(|p| {
+                let mut border = Province::from(p);
+                if let Some(coast) = province.coast {
+                    border.from_coast = Some(coast);
+                }
+                border
+            }).collect();
+            let army_borders = region.5.split_whitespace().map(Province::from)
+                .collect();
+
+            if let Some(existing_region) = map.iter_mut()
+                    .find(|r| r.province == province) {
+                existing_region.fleet_borders.extend(fleet_borders.iter().cloned());
+                continue;
+            }
+
+            map.push(MapRegion {
+                province: province,
                 sc: region.1,
 
                 owner: region.2.clone().map(Power::from),
@@ -176,12 +200,10 @@ impl Stpsyr {
                     }
                 }),
 
-                fleet_borders: region.4.split_whitespace()
-                    .map(Province::from).collect(),
-                army_borders: region.5.split_whitespace()
-                    .map(Province::from).collect()
-            }
-        }).collect();
+                fleet_borders: fleet_borders,
+                army_borders: army_borders
+            });
+        };
 
         Stpsyr {
             map: map,
@@ -197,18 +219,18 @@ impl Stpsyr {
         let unit = if let Some(unit) = self.get_unit(&province) { unit }
             else { return; };
 
-        let convoyed = match action {
+        let (is_move, convoyed) = match action {
             Action::Move { ref to, convoyed } => {
                 // let's do a quick check here: unit can't move to itself
                 if province == *to { return; }
-                convoyed
+                (true, convoyed)
             },
             Action::SupportMove { ref from, ref to } => {
                 // another quick check: can't support yourself
                 if *from == *to { return; }
-                false
+                (false, false)
             }
-            _ => false
+            _ => (false, false)
         }; // TODO use this better
 
         // can't convoy a fleet
@@ -222,10 +244,14 @@ impl Stpsyr {
             &Action::Move { ref to, convoyed: _ } |
             &Action::SupportHold { ref to } |
             &Action::SupportMove { from: _, ref to } => {
-                let p = self.get_region(&province).unwrap();
+                let r = self.get_region(&province).unwrap();
                 !match unit.unit_type {
-                    UnitType::Army => &p.army_borders,
-                    UnitType::Fleet => &p.fleet_borders
+                    UnitType::Army => r.army_borders.clone(),
+                    UnitType::Fleet => r.fleet_borders.clone().into_iter()
+                        .filter(|p|
+                            p.from_coast == r.province.coast &&
+                            (!is_move || p.coast == to.coast))
+                        .collect()
                 }.contains(&to)
             },
             _ => false
@@ -284,6 +310,12 @@ impl Stpsyr {
 
                 self.map[to_idx].unit = old_map[from_idx].unit.clone();
                 self.map[to_idx].owner = old_map[from_idx].owner.clone();
+
+                if let Some(coast) = to.coast {
+                    self.map[to_idx].province.coast =
+                        self.map[to_idx].province.coast.and(to.coast);
+                }
+
                 moved_away.push(&order.province);
             }, _ => {} }
         } }

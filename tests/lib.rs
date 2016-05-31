@@ -165,6 +165,183 @@ fn test_datc_6a12() {
 }
 
 #[test]
+fn test_datc_6b1() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "con", "bul", false);
+    move_order!(s, "Turkey", "ank", "con", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "bul", "ser", false);
+    move_order!(s, "Turkey", "con", "bul", false);
+    s.apply_orders();
+    assert_empty!(s, "bul");
+}
+
+#[test]
+fn test_datc_6b2() {
+    // NOTE: THIS TEST CASE DIFFERS FROM DATC RECOMMENDATION!!!
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "bla", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "bla", "bul", false);
+    s.apply_orders();
+    assert_empty!(s, "bul");
+}
+
+#[test]
+fn test_datc_6b3() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "bla", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "bla", "bul/sc", false);
+    s.apply_orders();
+    assert_empty!(s, "bul");
+}
+
+#[test]
+fn test_datc_6b4() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "con", false);
+    move_order!(s, "Turkey", "con", "smy", false);
+    move_order!(s, "Turkey", "smy", "syr", false);
+    move_order!(s, "Russia", "sev", "bla", false);
+    move_order!(s, "Austria", "bud", "rum", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "con", "bul/sc", false);
+    support_move_order!(s, "Russia", "bla", "con", "bul/sc");
+    move_order!(s, "Austria", "rum", "bul", false);
+    s.apply_orders();
+    assert_empty!(s, "con");
+}
+
+#[test]
+fn test_datc_6b5() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "con", false);
+    move_order!(s, "Turkey", "con", "bul", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "con", "bul/sc", false);
+    move_order!(s, "Turkey", "bul", "gre", false);
+    s.apply_orders();
+    support_move_order!(s, "Turkey", "bul", "bud", "rum");
+    move_order!(s, "Austria", "bud", "rum", false);
+    move_order!(s, "Russia", "sev", "rum", false);
+    s.apply_orders();
+    assert_empty!(s, "rum");
+}
+
+#[test]
+fn test_datc_6b6() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "con", false);
+    move_order!(s, "Turkey", "con", "bul", false);
+    move_order!(s, "Italy", "nap", "ion", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "con", "bul/nc", false);
+    move_order!(s, "Turkey", "bul", "gre", false);
+    move_order!(s, "Italy", "ion", "aeg", false);
+    s.apply_orders();
+    support_move_order!(s, "Turkey", "bul", "bud", "rum");
+    move_order!(s, "Austria", "bud", "rum", false);
+    move_order!(s, "Russia", "sev", "rum", false);
+    move_order!(s, "Italy", "aeg", "bul/sc", false);
+    s.apply_orders();
+    assert_empty!(s, "rum");
+}
+
+#[test]
+fn test_datc_6b7() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "France", "bre", "mao", false);
+    move_order!(s, "France", "mar", "spa", false);
+    move_order!(s, "Italy", "ven", "pie", false);
+    move_order!(s, "Italy", "nap", "tys", false);
+    s.apply_orders();
+    move_order!(s, "France", "spa", "por", false);
+    move_order!(s, "Italy", "pie", "mar", false);
+    move_order!(s, "Italy", "tys", "lyo", false);
+    s.apply_orders();
+    support_move_order!(s, "France", "por", "mao", "spa");
+    move_order!(s, "France", "mao", "spa/nc", false);
+    support_move_order!(s, "Italy", "mar", "lyo", "spa/sc");
+    move_order!(s, "Italy", "lyo", "spa/sc", false);
+    s.apply_orders();
+    assert_empty!(s, "spa");
+}
+
+// test 6b7 makes test 6b8 extraneous
+
+#[test]
+fn test_datc_6b9() {
+    // NOTE: THIS TEST CASE DIFFERS FROM DATC RECOMMENDATION!!!
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "France", "bre", "mao", false);
+    move_order!(s, "France", "mar", "spa", false);
+    move_order!(s, "Italy", "ven", "pie", false);
+    move_order!(s, "Italy", "nap", "tys", false);
+    s.apply_orders();
+    move_order!(s, "France", "spa", "por", false);
+    move_order!(s, "Italy", "pie", "mar", false);
+    move_order!(s, "Italy", "tys", "lyo", false);
+    s.apply_orders();
+    support_move_order!(s, "France", "por", "mao", "spa/sc");
+    move_order!(s, "France", "mao", "spa/nc", false);
+    support_move_order!(s, "Italy", "mar", "lyo", "spa/sc");
+    move_order!(s, "Italy", "lyo", "spa/sc", false);
+    s.apply_orders();
+    assert_empty!(s, "spa");
+}
+
+#[test]
+fn test_datc_6b10() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "France", "bre", "mao", false);
+    s.apply_orders();
+    move_order!(s, "France", "mao", "spa/sc", false);
+    s.apply_orders();
+    move_order!(s, "France", "spa/nc", "lyo", false);
+    s.apply_orders();
+    assert_nonempty!(s, "lyo");
+}
+
+#[test]
+fn test_datc_6b11() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "France", "bre", "mao", false);
+    s.apply_orders();
+    move_order!(s, "France", "mao", "spa/nc", false);
+    s.apply_orders();
+    move_order!(s, "France", "spa/sc", "lyo", false);
+    s.apply_orders();
+    assert_empty!(s, "lyo");
+}
+
+#[test]
+fn test_datc_6b12() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "France", "mar", "spa/nc", false);
+    s.apply_orders();
+    assert_nonempty!(s, "spa");
+}
+
+#[test]
+fn test_datc_6b13() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "con", false);
+    move_order!(s, "Turkey", "con", "bul", false);
+    move_order!(s, "Russia", "sev", "rum", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "bul", "gre", false);
+    move_order!(s, "Russia", "rum", "bul/nc", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "con", "bul/sc", false);
+    move_order!(s, "Russia", "bul/nc", "con", false);
+    s.apply_orders();
+    assert_eq!(s.get_unit(&Province::from("con")).unwrap().owner, Power::from("Turkey"));
+}
+
+// TODO 6b14 (pending builds)
+
+#[test]
 fn test_convoy() {
     let mut s = Stpsyr::new("data/standard.csv");
     move_order!(s, "Italy", "nap", "ion", false);
@@ -174,4 +351,20 @@ fn test_convoy() {
     move_order!(s, "Italy", "apu", "tun", true);
     s.apply_orders();
     assert_nonempty!(s, "tun");
+}
+
+#[test]
+fn test_coast() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "con", false);
+    move_order!(s, "Turkey", "con", "bul", false);
+    s.apply_orders();
+    move_order!(s, "Turkey", "con", "bul/nc", false);
+    move_order!(s, "Turkey", "bul", "gre", false);
+    s.apply_orders();
+    support_move_order!(s, "Turkey", "bul", "bud", "rum");
+    move_order!(s, "Austria", "bud", "rum", false);
+    move_order!(s, "Russia", "sev", "rum", false);
+    s.apply_orders();
+    assert_nonempty!(s, "rum");
 }
