@@ -25,6 +25,12 @@ macro_rules! convoy_order {
     )
 }
 
+macro_rules! order {
+    ($s:ident, $orders:expr) => (
+        $s.parse_orders(String::from($orders));
+    )
+}
+
 macro_rules! assert_empty {
     ($s:ident, $x:expr) => (
         assert!($s.get_unit(&Province::from($x)).is_none());
@@ -37,12 +43,21 @@ macro_rules! assert_nonempty {
     )
 }
 
+macro_rules! assert_unit {
+    ($s:ident, $province:expr, $unit:expr) => (
+        assert_eq!(format!("{:?}", $s.get_unit(&Province::from($province)).unwrap()), $unit);
+    )
+}
+
 #[test]
 fn test_datc_6a1() {
     let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "England", "lon", "pic", false);
-    move_order!(s, "Italy", "rom", "tun", false);
-    s.apply_orders();
+    order!(s, "
+    England
+        F lon-pic
+    Italy
+        A rom-tun
+    ");
     assert_empty!(s, "pic");
     assert_empty!(s, "tun");
 }
@@ -50,16 +65,20 @@ fn test_datc_6a1() {
 #[test]
 fn test_datc_6a2() {
     let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "England", "lvp", "iri", false);
-    s.apply_orders();
+    order!(s, "
+    England
+        A lvp-iri
+    ");
     assert_empty!(s, "iri");
 }
 
 #[test]
 fn test_datc_6a3() {
     let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Germany", "kie", "ruh", false);
-    s.apply_orders();
+    order!(s, "
+    Germany
+        F kie-ruh
+    ");
     assert_empty!(s, "ruh");
 }
 
@@ -142,7 +161,7 @@ fn test_datc_6a10() {
     support_move_order!(s, "Italy", "rom", "apu", "ven");
     move_order!(s, "Italy", "apu", "ven", false);
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("ven")).unwrap().owner, Power::from("Austria"));
+    assert_unit!(s, "ven", "Fleet Austria");
 }
 
 #[test]
@@ -336,7 +355,7 @@ fn test_datc_6b13() {
     move_order!(s, "Turkey", "con", "bul/sc", false);
     move_order!(s, "Russia", "bul/nc", "con", false);
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("con")).unwrap().owner, Power::from("Turkey"));
+    assert_unit!(s, "con", "Fleet Turkey");
 }
 
 // TODO 6b14 (pending builds)
@@ -348,7 +367,7 @@ fn test_datc_6c1() {
     move_order!(s, "Turkey", "con", "smy", false);
     move_order!(s, "Turkey", "smy", "ank", false);
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("con")).unwrap().unit_type, UnitType::Fleet);
+    assert_unit!(s, "con", "Fleet Turkey");
 }
 
 #[test]
@@ -361,7 +380,7 @@ fn test_datc_6c2() {
     move_order!(s, "Turkey", "con", "smy", false);
     move_order!(s, "Turkey", "smy", "ank", false);
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("con")).unwrap().unit_type, UnitType::Fleet);
+    assert_unit!(s, "con", "Fleet Turkey");
 }
 
 #[test]
@@ -374,7 +393,7 @@ fn test_datc_6c3() {
     move_order!(s, "Turkey", "con", "smy", false);
     move_order!(s, "Turkey", "smy", "ank", false);
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("ank")).unwrap().unit_type, UnitType::Fleet);
+    assert_unit!(s, "ank", "Fleet Turkey");
 }
 
 #[test]
@@ -391,7 +410,7 @@ fn test_datc_6c4() {
     convoy_order!(s, "Turkey", "bla", "rum", "con");
     move_order!(s, "Austria", "rum", "con", true);
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("con")).unwrap().owner, Power::from("Austria"));
+    assert_unit!(s, "con", "Army Austria");
 }
 
 #[test]
@@ -413,7 +432,7 @@ fn test_datc_6c5() {
     move_order!(s, "England", "nth", "eng", false);
     support_move_order!(s, "England", "lon", "nth", "eng");
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("pic")).unwrap().owner, Power::from("France"));
+    assert_unit!(s, "pic", "Army France");
 }
 
 #[test]
@@ -432,7 +451,7 @@ fn test_datc_6c6() {
     convoy_order!(s, "England", "nth", "lon", "bel");
     move_order!(s, "England", "lon", "bel", true);
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("bel")).unwrap().owner, Power::from("England"));
+    assert_unit!(s, "bel", "Army England");
 }
 
 #[test]
@@ -453,7 +472,7 @@ fn test_datc_6c7() {
     convoy_order!(s, "England", "nth", "lon", "bel");
     move_order!(s, "England", "lon", "bel", true);
     s.apply_orders();
-    assert_eq!(s.get_unit(&Province::from("lon")).unwrap().owner, Power::from("England"));
+    assert_unit!(s, "lon", "Army England");
 }
 
 #[test]
