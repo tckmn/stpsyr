@@ -342,6 +342,121 @@ fn test_datc_6b13() {
 // TODO 6b14 (pending builds)
 
 #[test]
+fn test_datc_6c1() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "con", false);
+    move_order!(s, "Turkey", "con", "smy", false);
+    move_order!(s, "Turkey", "smy", "ank", false);
+    s.apply_orders();
+    assert_eq!(s.get_unit(&Province::from("con")).unwrap().unit_type, UnitType::Fleet);
+}
+
+#[test]
+fn test_datc_6c2() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Russia", "sev", "bla", false);
+    s.apply_orders();
+    support_move_order!(s, "Russia", "bla", "smy", "ank");
+    move_order!(s, "Turkey", "ank", "con", false);
+    move_order!(s, "Turkey", "con", "smy", false);
+    move_order!(s, "Turkey", "smy", "ank", false);
+    s.apply_orders();
+    assert_eq!(s.get_unit(&Province::from("con")).unwrap().unit_type, UnitType::Fleet);
+}
+
+#[test]
+fn test_datc_6c3() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Russia", "sev", "bla", false);
+    s.apply_orders();
+    move_order!(s, "Russia", "bla", "ank", false);
+    move_order!(s, "Turkey", "ank", "con", false);
+    move_order!(s, "Turkey", "con", "smy", false);
+    move_order!(s, "Turkey", "smy", "ank", false);
+    s.apply_orders();
+    assert_eq!(s.get_unit(&Province::from("ank")).unwrap().unit_type, UnitType::Fleet);
+}
+
+#[test]
+fn test_datc_6c4() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "Turkey", "ank", "bla", false);
+    move_order!(s, "Turkey", "smy", "con", false);
+    move_order!(s, "Turkey", "con", "bul", false);
+    move_order!(s, "Austria", "bud", "rum", false);
+    s.apply_orders();
+    move_order!(s, "Russia", "sev", "bla", false);
+    move_order!(s, "Turkey", "con", "bul", false);
+    move_order!(s, "Turkey", "bul", "rum", false);
+    convoy_order!(s, "Turkey", "bla", "rum", "con");
+    move_order!(s, "Austria", "rum", "con", true);
+    s.apply_orders();
+    assert_eq!(s.get_unit(&Province::from("con")).unwrap().owner, Power::from("Austria"));
+}
+
+#[test]
+fn test_datc_6c5() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "France", "bre", "eng", false);
+    move_order!(s, "France", "par", "bre", false);
+    move_order!(s, "France", "mar", "bur", false);
+    move_order!(s, "Germany", "mun", "ruh", false);
+    move_order!(s, "England", "edi", "nth", false);
+    s.apply_orders();
+    move_order!(s, "France", "bur", "pic", false);
+    move_order!(s, "Germany", "ruh", "bel", false);
+    s.apply_orders();
+    move_order!(s, "Germany", "bel", "pic", false);
+    move_order!(s, "France", "pic", "bre", false);
+    convoy_order!(s, "France", "eng", "bre", "bel");
+    move_order!(s, "France", "bre", "bel", true);
+    move_order!(s, "England", "nth", "eng", false);
+    support_move_order!(s, "England", "lon", "nth", "eng");
+    s.apply_orders();
+    assert_eq!(s.get_unit(&Province::from("pic")).unwrap().owner, Power::from("France"));
+}
+
+#[test]
+fn test_datc_6c6() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "France", "bre", "eng", false);
+    move_order!(s, "France", "par", "pic", false);
+    move_order!(s, "England", "lon", "nth", false);
+    move_order!(s, "England", "lvp", "yor", false);
+    s.apply_orders();
+    move_order!(s, "France", "pic", "bel", false);
+    move_order!(s, "England", "yor", "lon", false);
+    s.apply_orders();
+    convoy_order!(s, "France", "eng", "bel", "lon");
+    move_order!(s, "France", "bel", "lon", true);
+    convoy_order!(s, "England", "nth", "lon", "bel");
+    move_order!(s, "England", "lon", "bel", true);
+    s.apply_orders();
+    assert_eq!(s.get_unit(&Province::from("bel")).unwrap().owner, Power::from("England"));
+}
+
+#[test]
+fn test_datc_6c7() {
+    let mut s = Stpsyr::new("data/standard.csv");
+    move_order!(s, "France", "mar", "bur", false);
+    move_order!(s, "France", "bre", "eng", false);
+    move_order!(s, "France", "par", "pic", false);
+    move_order!(s, "England", "lon", "nth", false);
+    move_order!(s, "England", "lvp", "yor", false);
+    s.apply_orders();
+    move_order!(s, "France", "pic", "bel", false);
+    move_order!(s, "England", "yor", "lon", false);
+    s.apply_orders();
+    move_order!(s, "France", "bur", "bel", false);
+    convoy_order!(s, "France", "eng", "bel", "lon");
+    move_order!(s, "France", "bel", "lon", true);
+    convoy_order!(s, "England", "nth", "lon", "bel");
+    move_order!(s, "England", "lon", "bel", true);
+    s.apply_orders();
+    assert_eq!(s.get_unit(&Province::from("lon")).unwrap().owner, Power::from("England"));
+}
+
+#[test]
 fn test_convoy() {
     let mut s = Stpsyr::new("data/standard.csv");
     move_order!(s, "Italy", "nap", "ion", false);

@@ -106,7 +106,7 @@ impl cmp::PartialEq for MapRegion {
 }
 
 // here are some utility types for the Order struct
-#[derive(Clone,Debug)]
+#[derive(Clone,Debug,PartialEq)]
 enum OrderState { UNRESOLVED, GUESSING, RESOLVED }
 #[derive(Clone,Debug)]
 pub enum Action {
@@ -275,6 +275,7 @@ impl Stpsyr {
         // resolve all orders
         for i in 0..self.orders.len() {
             self.resolve(i);
+            assert!(self.orders[i].state == OrderState::RESOLVED);
             println!("{:?}", self.orders[i]);
         }
 
@@ -408,7 +409,8 @@ impl Stpsyr {
                     return first_result;
                 }
 
-                // TODO backup rule
+                // we have circular dependencies; use the backup rule
+                self.backup_rule(old_dep_count);
 
                 // start over in case backup rule hasn't resolved all orders
                 self.resolve(id)
@@ -428,20 +430,20 @@ impl Stpsyr {
                 true
             },
 
-            Action::Move { to, convoyed } => {
+            Action::Move { to, convoyed: _ } => {
                 let attack_strength = self.attack_strength(&province);
 
                 // the attack strength (above) needs to be greater than this
-                let counter_strength = if self.orders.iter().find(|o|
+                let counter_strength = if self.orders.iter().any(|o|
                         match o.action {
-                            Action::Move { to: ref move_to, convoyed: _ } =>
-                                province == *move_to,
+                            Action::Move { to: ref move_to, convoyed } =>
+                                province == *move_to && !convoyed,
                             _ => false
-                        } && o.province == to).is_some() {
-                    // head to head battle
+                        } && o.province == to) {
+                    // head-to-head battle
                     self.defend_strength(&to)
                 } else {
-                    // no head to head battle
+                    // no head-to-head battle
                     self.hold_strength(&to)
                 };
 
@@ -462,7 +464,7 @@ impl Stpsyr {
 
             Action::SupportHold { to } | Action::SupportMove { from: _, to } => {
                 // a support is cut when...
-                self.orders.clone().iter().find(|o|
+                !self.orders.clone().iter().any(|o|
                     match o.action {
                         Action::Move { to: ref move_to, convoyed } =>
                             // ... something with a valid path attacks it...
@@ -474,12 +476,18 @@ impl Stpsyr {
                     // ... and it's not the thing being supported (in)to...
                     o.province != to &&
                     // ... , and you can't cut your own support
-                    o.owner != self.orders[id].owner).is_none()
+                    o.owner != self.orders[id].owner)
             },
 
-            Action::Convoy { from, to } => {
-                // TODO
-                true
+            Action::Convoy { from: _, to: _ } => {
+                // a convoy only fails when it is dislodged
+                !self.orders.clone().iter().any(|o|
+                    match o.action {
+                        Action::Move { to: ref move_to, convoyed: _ } => {
+                            province == *move_to
+                        },
+                        _ => false
+                    } && self.resolve(o.id))
             },
 
         }
@@ -503,14 +511,14 @@ impl Stpsyr {
                 paths.iter().filter(|path| {
                     path.iter().skip(1).all(|&ref p|
                         // for every convoying fleet...
-                        self.orders.clone().iter().find(|o|
+                        self.orders.clone().iter().any(|o|
                             o.province == *p && match o.action {
                                 // ... there has to be a convoy order
                                 Action::Convoy { ref from, to: ref c_to } => {
                                     *from == order.province && *to == *c_to
                                 }, _ => false
                             } && self.resolve(o.id)  // ... and it must succeed
-                        ).is_some()
+                        )
                     )
                 }).map(|x|x.clone()).collect()
 
@@ -679,5 +687,43 @@ impl Stpsyr {
             }).map(|o| o.id).collect();
 
         1 + supports.iter().filter(|&id| self.resolve(*id)).count()
+    }
+
+    fn backup_rule(&mut self, old_dep_count: usize) {
+        let dependencies = self.dependencies.drain(old_dep_count..)
+            .collect::<Vec<usize>>();
+        let (mut only_moves, mut convoys) = (true, false);
+
+        for &dep in dependencies.iter() {
+            match self.orders[dep].action {
+                Action::Move { to: _, convoyed: _ } => {},
+                Action::Convoy { from: _, to: _ } => {
+                    only_moves = false;
+                    convoys = true;
+                },
+                _ => only_moves = false
+            }
+        }
+
+        for &dep in dependencies.iter() {
+            if only_moves {
+                // circular movement---make everything succeed
+                self.orders[dep].resolution = true;
+                self.orders[dep].state = OrderState::RESOLVED;
+            } else if convoys {
+                // convoy paradox---make convoy fail as per Szykman
+                let is_convoy = match self.orders[dep].action {
+                    Action::Convoy { from: _, to: _ } => true, _ => false
+                };
+                if is_convoy {
+                    self.orders[dep].resolution = false;
+                    self.orders[dep].state = OrderState::RESOLVED;
+                } else {
+                    self.orders[dep].state = OrderState::UNRESOLVED;
+                }
+            } else {
+                panic!("unknown circular dependency");
+            }
+        }
     }
 }
