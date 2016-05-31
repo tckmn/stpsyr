@@ -58,7 +58,7 @@ impl cmp::PartialEq for Province {
 
 // a Power is simply a wrapper around a String for semantics
 // ex. Germany, Austria
-#[derive(Clone,PartialEq)]
+#[derive(Clone)]
 pub struct Power {
     name: String
 }
@@ -75,6 +75,11 @@ impl From<String> for Power {
 impl<'a> From<&'a str> for Power {
     fn from(s: &str) -> Power {
         Power::from(s.to_string())
+    }
+}
+impl cmp::PartialEq for Power {
+    fn eq(&self, other: &Power) -> bool {
+        self.name.to_lowercase() == other.name.to_lowercase()
     }
 }
 
@@ -215,6 +220,7 @@ impl Stpsyr {
 
     // the publicly exposed function to modify self.orders
     pub fn add_order(&mut self, owner: Power, province: Province, action: Action) {
+        println!("{:?} {:?} {:?}", owner, province, action);
         // there has to be a unit here to order it
         let unit = if let Some(unit) = self.get_unit(&province) { unit }
             else { return; };
