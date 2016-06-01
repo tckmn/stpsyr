@@ -220,7 +220,6 @@ impl Stpsyr {
 
     // the publicly exposed function to modify self.orders
     pub fn add_order(&mut self, owner: Power, province: Province, action: Action) {
-        println!("{:?} {:?} {:?}", owner, province, action);
         // there has to be a unit here to order it
         let unit = if let Some(unit) = self.get_unit(&province) { unit }
             else { return; };

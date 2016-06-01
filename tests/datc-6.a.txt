@@ -1,0 +1,139 @@
+# 1. Moving to an area that is not a neighbor
+
+England
+    F lon-pic
+Italy
+    A rom-tun
+
+lon: Fleet England
+pic: empty
+rom: Army Italy
+tun: empty
+
+# 2. Move army to sea
+
+England
+    A lvp-iri
+
+lvp: Army England
+iri: empty
+
+# 3. Move fleet to land
+
+Germany
+    F kie-ruh
+
+kie: Fleet Germany
+ruh: empty
+
+# 4. Move to own sector
+
+Germany
+    F kie-kie
+
+kie: Fleet Germany
+
+# 5. Move to own sector with convoy
+
+Italy
+    A rom-ven
+    A ven-tyr
+Austria
+    A bud-tri
+    F tri-adr
+
+Italy
+    A ven-tri
+    A tyr S ven-tri
+Austria
+    F adr C A tri-tri
+    A tri-tri (via convoy)
+    A vie S tri-tri
+
+ven: empty
+tri: Army Italy
+
+# 6. Ordering a unit of another country
+
+Germany
+    F lon-nth
+
+lon: Fleet England
+nth: empty
+
+# 7. Only armies can be convoyed
+
+England
+    F edi-nth
+
+England
+    F nth C F lon-bel
+    F lon-bel (via convoy)
+
+lon: Fleet England
+bel: empty
+
+# 8. Support to hold yourself is not possible
+
+Italy
+    A rom-ven
+    A ven-tyr
+
+Austria
+    A tri S tri
+Italy
+    A ven-tri
+    A tyr S A ven-tri
+
+ven: empty
+tri: Army Italy
+
+# 9. Fleets must follow coasts if not on sea
+
+Turkey
+    A con-bul
+    A smy-con
+    F ank-smy
+
+smy: empty
+
+# 10. Support on unreachable destination not possible
+
+Italy
+    A rom-apu
+    F nap-rom
+    A ven-tyr
+Austria
+    A tri-ven
+
+Italy
+    A apu-ven
+    F rom S A apu-ven
+
+apu: Army Italy
+ven: Fleet Austria
+
+# 11. Simple bounce
+
+Italy
+    A ven-tyr
+Austria
+    A vie-tyr
+
+ven: Army Italy
+vie: Army Austria
+tyr: empty
+
+# 12. Bounce of three units
+
+Italy
+    A ven-tyr
+Austria
+    A vie-tyr
+Germany
+    A mun-tyr
+
+ven: Army Italy
+vie: Army Austria
+mun: Army Germany
+tyr: empty

@@ -1,6 +1,9 @@
 extern crate stpsyr;
 use stpsyr::*;
 
+use std::io::{BufRead, BufReader};
+use std::fs::File;
+
 macro_rules! move_order {
     ($s:ident, $power:expr, $from:expr, $to:expr, $convoyed:expr) => (
         $s.add_order(Power::from($power), Province::from($from), Action::Move { to: Province::from($to), convoyed: $convoyed });
@@ -49,146 +52,51 @@ macro_rules! assert_unit {
     )
 }
 
-#[test]
-fn test_datc_6a1() {
+fn test_from_file(filename: &str) {
+    let err_msg = "bad thing happen ono"; // TODO ...
+    let f = File::open(filename).expect(err_msg);
+    let file = BufReader::new(&f);
+    let mut title = String::new();
+    let mut cache = String::new();
     let mut s = Stpsyr::new("data/standard.csv");
-    order!(s, "
-    England
-        F lon-pic
-    Italy
-        A rom-tun
-    ");
-    assert_empty!(s, "pic");
-    assert_empty!(s, "tun");
+    for line in file.lines() {
+        let line = line.unwrap();
+        match line.chars().next() {
+            Some('#') => {
+                title = line.chars().skip(2).collect();
+                s = Stpsyr::new("data/standard.csv");
+            },
+            None => {
+                println!("CACHE: {:?}", cache);
+                if !cache.is_empty() {
+                    s.parse_orders(cache);
+                    cache = String::new();
+                }
+            },
+            _ => {
+                if line.contains(':') {
+                    let mut parts = line.split(": ");
+                    let province = parts.next().expect(err_msg);
+                    let real_unit = s.get_unit(&Province::from(province))
+                        .map_or(String::from("empty"), |u| format!("{:?}", u));
+                    let assert_unit = parts.next().expect(err_msg);
+                    if parts.next().is_some() { panic!(err_msg); }
+
+                    if real_unit != assert_unit {
+                        panic!("file {}, test \"{}\": in {}, expected {}, found {}",
+                            filename, title, province, assert_unit, real_unit);
+                    }
+                } else {
+                    cache = format!("{}{}\n", cache, line);
+                }
+            }
+        }
+    }
 }
 
 #[test]
-fn test_datc_6a2() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    order!(s, "
-    England
-        A lvp-iri
-    ");
-    assert_empty!(s, "iri");
-}
-
-#[test]
-fn test_datc_6a3() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    order!(s, "
-    Germany
-        F kie-ruh
-    ");
-    assert_empty!(s, "ruh");
-}
-
-#[test]
-fn test_datc_6a4() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    order!(s, "
-    Germany
-        F kie-kie
-    ");
-    assert_nonempty!(s, "kie");
-}
-
-#[test]
-fn test_datc_6a5() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    order!(s, "
-    Italy
-        A rom-ven
-        A ven-tyr
-    Austria
-        A bud-tri
-        F tri-adr
-    ");
-    order!(s, "
-    Italy
-        A ven-tri
-        A tyr S ven-tri
-    Austria
-        F adr C A tri-tri
-        A tri-tri (via convoy)
-        A vie S tri-tri
-    ");
-    assert_empty!(s, "ven");
-}
-
-#[test]
-fn test_datc_6a6() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Germany", "lon", "nth", false);
-    s.apply_orders();
-    assert_empty!(s, "nth");
-}
-
-#[test]
-fn test_datc_6a7() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "England", "edi", "nth", false);
-    s.apply_orders();
-    convoy_order!(s, "England", "nth", "lon", "bel");
-    move_order!(s, "England", "lon", "bel", true);
-    s.apply_orders();
-    assert_empty!(s, "bel");
-}
-
-#[test]
-fn test_datc_6a8() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Italy", "rom", "ven", false);
-    move_order!(s, "Italy", "ven", "tyr", false);
-    s.apply_orders();
-    support_hold_order!(s, "Austria", "tri", "tri");
-    move_order!(s, "Italy", "ven", "tri", false);
-    support_move_order!(s, "Italy", "tyr", "ven", "tri");
-    let dislodged = s.apply_orders();
-    assert_eq!(dislodged.len(), 1);
-    assert_eq!(dislodged[0].0, Province::from("tri"));
-}
-
-#[test]
-fn test_datc_6a9() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Turkey", "con", "bul", false);
-    move_order!(s, "Turkey", "smy", "con", false);
-    move_order!(s, "Turkey", "ank", "smy", false);
-    s.apply_orders();
-    assert_empty!(s, "smy");
-}
-
-#[test]
-fn test_datc_6a10() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Italy", "rom", "apu", false);
-    move_order!(s, "Italy", "nap", "rom", false);
-    move_order!(s, "Italy", "ven", "tyr", false);
-    move_order!(s, "Austria", "tri", "ven", false);
-    s.apply_orders();
-    support_move_order!(s, "Italy", "rom", "apu", "ven");
-    move_order!(s, "Italy", "apu", "ven", false);
-    s.apply_orders();
-    assert_unit!(s, "ven", "Fleet Austria");
-}
-
-#[test]
-fn test_datc_6a11() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Italy", "ven", "tyr", false);
-    move_order!(s, "Austria", "vie", "tyr", false);
-    s.apply_orders();
-    assert_empty!(s, "tyr");
-}
-
-#[test]
-fn test_datc_6a12() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Italy", "ven", "tyr", false);
-    move_order!(s, "Austria", "vie", "tyr", false);
-    move_order!(s, "Germany", "mun", "tyr", false);
-    s.apply_orders();
-    assert_empty!(s, "tyr");
+fn test_datc_6a() {
+    test_from_file("tests/datc-6.a.txt");
 }
 
 #[test]
