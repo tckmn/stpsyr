@@ -71,6 +71,7 @@ fn test_from_file(filename: &str) {
                 println!("CACHE: {:?}", cache);
                 if !cache.is_empty() {
                     s.parse_orders(cache);
+                    s.apply_orders();
                     cache = String::new();
                 }
             },

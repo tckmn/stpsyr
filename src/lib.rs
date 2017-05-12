@@ -343,7 +343,7 @@ impl Stpsyr {
     }
 
     // parse orders as a string and apply them
-    pub fn parse_orders(&mut self, orders: String) -> Vec<(Province, Unit)> {
+    pub fn parse_orders(&mut self, orders: String) {
         let mut power = Power::from(String::new());
 
         for line in orders.lines() {
@@ -406,8 +406,6 @@ impl Stpsyr {
                 }
             }
         }
-
-        self.apply_orders()
     }
 
     // get the unit currently in a province
