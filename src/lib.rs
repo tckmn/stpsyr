@@ -317,7 +317,7 @@ impl Stpsyr {
                 self.map[to_idx].unit = old_map[from_idx].unit.clone();
                 self.map[to_idx].owner = old_map[from_idx].owner.clone();
 
-                if let Some(coast) = to.coast {
+                if let Some(_) = to.coast {
                     self.map[to_idx].province.coast =
                         self.map[to_idx].province.coast.and(to.coast);
                 }
