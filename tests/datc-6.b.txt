@@ -1,0 +1,220 @@
+# 1. Moving with unspecified coast when coast is necessary
+
+Turkey
+    A con-bul
+    F ank-con
+
+Turkey
+    A bul-ser
+    F con-bul
+
+con: Fleet Turkey
+bul: empty
+
+# 2. Moving with unspecified coast when coast is not necessary
+// NOTE: THIS TEST CASE DIFFERS FROM DATC RECOMMENDATION!!!
+
+Turkey
+    F ank-bla
+
+Turkey
+    F bla-bul
+
+bla: Fleet Turkey
+bul: empty
+
+# 3. Moving with wrong coast when coast is not necessary
+
+Turkey
+    F ank-bla
+
+Turkey
+    F bla-bul/sc
+
+bla: Fleet Turkey
+bul: empty
+
+# 4. Support to unreachable coast allowed
+
+Turkey
+    F ank-con
+    A con-smy
+    A smy-syr
+Russia
+    F sev-bla
+Austria
+    A bud-rum
+
+Turkey
+    F con-bul/sc
+Russia
+    F bla S F con-bul/sc
+Austria
+    A rum-bul
+
+con: empty
+bul: Fleet Turkey
+
+# 5. Support from unreachable coast not allowed
+
+Turkey
+    F ank-con
+    A con-bul
+
+Turkey
+    F con-bul/sc
+    A bul-gre
+
+Turkey
+    F bul S A bud-rum
+Austria
+    A bud-rum
+Russia
+    F sev-rum
+
+bud: Army Austria
+sev: Fleet Russia
+rum: empty
+
+# 6. Support can be cut with other coast
+
+Turkey
+    F ank-con
+    A con-bul
+Italy
+    F nap-ion
+
+Turkey
+    F con-bul/nc
+    A bul-gre
+Italy
+    F ion-aeg
+
+Turkey
+    F bul S A bud-rum
+Austria
+    A bud-rum
+Russia
+    F sev-rum
+Italy
+    F aeg-bul/sc
+
+aeg: Fleet Italy
+bud: Army Austria
+sev: Fleet Russia
+rum: empty
+
+# 7. Supporting with unspecified coast
+
+France
+    F bre-mao
+    A mar-spa
+Italy
+    A ven-pie
+    F nap-tys
+
+France
+    A spa-por
+Italy
+    A pie-mar
+    F tys-lyo
+
+France
+    A por S F mao-spa
+    F mao-spa/nc
+Italy
+    F mar S F lyo-spa/sc
+    F lyo-spa/sc
+
+mao: Fleet France
+lyo: Fleet Italy
+spa: empty
+
+// test 6b7 makes test 6b8 extraneous
+
+# 9. Supporting with wrong coast
+// NOTE: THIS TEST CASE DIFFERS FROM DATC RECOMMENDATION!!!
+
+France
+    F bre-mao
+    A mar-spa
+Italy
+    A ven-pie
+    F nap-tys
+
+France
+    A spa-por
+Italy
+    A pie-mar
+    F tys-lyo
+
+France
+    A por S F mao-spa/sc
+    F mao-spa/nc
+Italy
+    F mar S F lyo-spa/sc
+    F lyo-spa/sc
+
+mao: Fleet France
+lyo: Fleet Italy
+spa: empty
+
+# 10. Unit ordered with wrong coast
+
+France
+    F bre-mao
+
+France
+    F mao-spa/sc
+
+France
+    F spa/nc-lyo
+
+lyo: Fleet France
+spa: empty
+
+# 11. Coast cannot be ordered to change
+
+France
+    F bre-mao
+
+France
+    F mao-spa/nc
+
+France
+    F spa/sc-lyo
+
+lyo: empty
+spa: Fleet France
+
+# 12. Army movement with coastal specification
+
+France
+    A mar-spa/nc
+
+spa: Army France
+mar: empty
+
+# 13. Coastal crawl not allowed
+
+Turkey
+    F ank-con
+    A con-bul
+Russia
+    F sev-rum
+
+Turkey
+    A bul-gre
+Russia
+    A rum-bul/nc
+
+Turkey
+    F con-bul/sc
+Russia
+    F bul/nc-con
+
+con: Fleet Turkey
+bul: Fleet Russia
+
+# 14. Building with unspecified coast
+# TODO (pending builds)
