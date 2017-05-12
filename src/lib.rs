@@ -150,12 +150,32 @@ struct Retreat {
     action: RetreatAction
 }
 
+// a Build stores the power that ordered it, which province to build in, and
+//   what kind of unit to build there
+struct Build {
+    owner: Power,
+    province: Province,
+    unit_type: UnitType
+}
+
+// fairly self-explanatory
+#[derive(Clone,Copy,Debug,PartialEq)]
+enum Phase {
+    SpringDiplomacy,
+    SpringRetreats,
+    FallDiplomacy,
+    FallRetreats,
+    Builds
+}
+
 // this is the main struct (duh)
 pub struct Stpsyr {
     map: Vec<MapRegion>,
     orders: Vec<Order>,
     dependencies: Vec<usize>,
-    dislodged: Vec<(Province, Unit)>
+    dislodged: Vec<(Province, Unit)>,
+    phase: Phase,
+    year: i32
 }
 
 impl Stpsyr {
@@ -214,7 +234,9 @@ impl Stpsyr {
             map: map,
             orders: vec![],
             dependencies: vec![],
-            dislodged: vec![]
+            dislodged: vec![],
+            phase: Phase::SpringDiplomacy,
+            year: 1901
         }
     }
 
@@ -286,7 +308,18 @@ impl Stpsyr {
 
         // do the moves that were successfully resolved
         self.apply_resolved();
-        println!("{:?}", self.map);
+
+        // update phase data
+        // TODO don't go to a phase if nobody has stuff to do for it
+        self.phase = match self.phase {
+            Phase::SpringDiplomacy => Phase::SpringRetreats,
+            Phase::SpringRetreats => Phase::FallDiplomacy,
+            Phase::FallDiplomacy => Phase::FallRetreats,
+            Phase::FallRetreats => Phase::Builds,
+            Phase::Builds => { self.year += 1; Phase::SpringDiplomacy }
+        };
+
+        println!("{:?} {}: {:?}", self.phase, self.year, self.map);
 
         // clear out orders, return dislodged units
         self.orders = vec![];
