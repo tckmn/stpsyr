@@ -253,8 +253,8 @@ impl Stpsyr {
                 (true, convoyed)
             },
             Action::SupportMove { ref from, ref to } => {
-                // another quick check: can't support yourself
-                if *from == *to { return; }
+                // another quick check: can't support yourself or a non-move
+                if province == *from || province == *to || *from == *to { return; }
                 (false, false)
             }
             _ => (false, false)
