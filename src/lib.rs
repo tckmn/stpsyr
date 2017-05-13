@@ -319,7 +319,7 @@ impl Stpsyr {
             },
             Phase::SpringRetreats => Phase::FallDiplomacy,
             Phase::FallDiplomacy | Phase::FallRetreats =>
-                if self.phase == Phase::FallRetrats || self.dislodged.is_empty() {
+                if self.phase == Phase::FallRetreats || self.dislodged.is_empty() {
                     Phase::Builds // TODO only if people have them
                 } else {
                     Phase::FallRetreats
@@ -392,11 +392,18 @@ impl Stpsyr {
         for line in orders.lines() {
             let line = line.to_lowercase()
                 .replace('-', " ")
+                .replace(" m ", " ")
+                .replace(" move ", " ")
+                .replace(" move to ", " ")
+                .replace(" moves ", " ")
+                .replace(" moves to ", " ")
                 .replace('(', " ")
                 .replace(')', " ")
                 .replace(" support ", " s ")
+                .replace(" supports ", " s ")
                 .replace("via convoy", "vc")
-                .replace(" convoy ", " c ");
+                .replace(" convoy ", " c ")
+                .replace(" convoys ", " c ");
             let tokens: Vec<&str> = line.split_whitespace().collect();
             if tokens.is_empty() { continue; }
             else if tokens.len() == 1 {
@@ -409,7 +416,10 @@ impl Stpsyr {
                     *token != "f" &&
                     *token != "fleet" &&
                     *token != "h" &&
-                    *token != "hold");
+                    *token != "hold" &&
+                    *token != "holds" &&
+                    *token != "stand" &&
+                    *token != "stands");
                 let province = Province::from(*tokens_iter.next().unwrap());
                 match tokens_iter.next() {
                     None => {}, // hold
