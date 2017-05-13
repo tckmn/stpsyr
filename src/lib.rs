@@ -125,7 +125,7 @@ pub enum Action {
 // an Order stores the power that ordered it, which province is being ordered,
 //   the actual order (action), and some meta information for the resolve() and
 //   adjudicate() functions
-// it is separate from a Retreat and a Build
+// it is separate from a Retreat and an Adjust
 #[derive(Clone,Debug)]
 struct Order {
     owner: Power,
@@ -150,12 +150,17 @@ struct Retreat {
     action: RetreatAction
 }
 
-// a Build stores the power that ordered it, which province to build in, and
-//   what kind of unit to build there
-struct Build {
+pub enum AdjustAction {
+    Disband,
+    Build { unit_type: UnitType }
+}
+
+// a Adjust stores the power that ordered it, which province to build/destroy
+// in, and what to do there (disband or build a unit)
+struct Adjust {
     owner: Power,
     province: Province,
-    unit_type: UnitType
+    action: AdjustAction
 }
 
 // fairly self-explanatory
@@ -172,6 +177,8 @@ enum Phase {
 pub struct Stpsyr {
     map: Vec<MapRegion>,
     orders: Vec<Order>,
+    retreats: Vec<Retreat>,
+    adjusts: Vec<Adjust>,
     dependencies: Vec<usize>,
     dislodged: Vec<(Province, Unit)>,
     phase: Phase,
@@ -233,6 +240,8 @@ impl Stpsyr {
         Stpsyr {
             map: map,
             orders: vec![],
+            retreats: vec![],
+            adjusts: vec![],
             dependencies: vec![],
             dislodged: vec![],
             phase: Phase::SpringDiplomacy,
@@ -332,6 +341,36 @@ impl Stpsyr {
         // clear out orders, return dislodged units
         self.orders = vec![];
         self.dislodged.clone()
+    }
+
+    // the publicly exposed function to modify self.retreats
+    pub fn add_retreat(&mut self, owner: Power, province: Province, action: RetreatAction) {
+        self.retreats.push(Retreat {
+            owner: owner,
+            province: province,
+            action: action
+        });
+    }
+
+    // the publicly exposed function that is called once all retreats have been
+    //   added
+    pub fn apply_retreats(&mut self) {
+        // TODO
+    }
+
+    // the publicly exposed function to modify self.adjusts
+    pub fn add_adjust(&mut self, owner: Power, province: Province, action: AdjustAction) {
+        self.adjusts.push(Adjust {
+            owner: owner,
+            province: province,
+            action: action
+        });
+    }
+
+    // the publicly exposed function that is called once all adjusts have been
+    //   added
+    pub fn apply_adjusts(&mut self) {
+        // TODO
     }
 
     // this is the function that actually moves units when their resolution is
