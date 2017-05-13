@@ -312,10 +312,18 @@ impl Stpsyr {
         // update phase data
         // TODO don't go to a phase if nobody has stuff to do for it
         self.phase = match self.phase {
-            Phase::SpringDiplomacy => Phase::SpringRetreats,
+            Phase::SpringDiplomacy => if self.dislodged.is_empty() {
+                Phase::FallDiplomacy
+            } else {
+                Phase::SpringRetreats
+            },
             Phase::SpringRetreats => Phase::FallDiplomacy,
-            Phase::FallDiplomacy => Phase::FallRetreats,
-            Phase::FallRetreats => Phase::Builds,
+            Phase::FallDiplomacy | Phase::FallRetreats =>
+                if self.phase == Phase::FallRetrats || self.dislodged.is_empty() {
+                    Phase::Builds // TODO only if people have them
+                } else {
+                    Phase::FallRetreats
+                },
             Phase::Builds => { self.year += 1; Phase::SpringDiplomacy }
         };
 
@@ -348,7 +356,9 @@ impl Stpsyr {
                 }
 
                 self.map[to_idx].unit = old_map[from_idx].unit.clone();
-                self.map[to_idx].owner = old_map[from_idx].owner.clone();
+                if !self.map[to_idx].sc || self.phase == Phase::FallDiplomacy {
+                    self.map[to_idx].owner = old_map[from_idx].owner.clone();
+                }
 
                 if let Some(_) = to.coast {
                     self.map[to_idx].province.coast =
