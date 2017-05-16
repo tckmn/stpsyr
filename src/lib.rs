@@ -251,6 +251,11 @@ impl Stpsyr {
 
     // the publicly exposed function to modify self.orders
     pub fn add_order(&mut self, owner: Power, province: Province, action: Action) {
+        match self.phase {
+            Phase::SpringDiplomacy | Phase::FallDiplomacy => {},
+            _ => panic!("add_order called during non-diplomacy phase")
+        };
+
         // there has to be a unit here to order it
         let unit = if let Some(unit) = self.get_unit(&province) { unit }
             else { return; };
@@ -345,6 +350,37 @@ impl Stpsyr {
 
     // the publicly exposed function to modify self.retreats
     pub fn add_retreat(&mut self, owner: Power, province: Province, action: RetreatAction) {
+        // TODO refactor this method to get rid of repetition from verification
+        //   used in add_order
+
+        match self.phase {
+            Phase::SpringRetreats | Phase::FallRetreats => {},
+            _ => panic!("add_retreat called during non-retreat phase")
+        };
+
+        // there has to be a unit here to order it
+        let unit = if let Some(unit) = self.get_unit(&province) { unit }
+            else { return; };
+
+        // can't order a unit that's not yours
+        if unit.owner != owner { return; }
+
+        // can't order to a province you can't reach
+        if match &action {
+            &RetreatAction::Move { ref to } => {
+                let r = self.get_region(&province).unwrap();
+                !match unit.unit_type {
+                    UnitType::Army => r.army_borders.clone(),
+                    UnitType::Fleet => r.fleet_borders.clone().into_iter()
+                        .filter(|p|
+                            p.from_coast == r.province.coast &&
+                            p.coast == to.coast)
+                        .collect()
+                }.contains(&to)
+            },
+            _ => false
+        } { return; }
+
         self.retreats.push(Retreat {
             owner: owner,
             province: province,
@@ -360,6 +396,13 @@ impl Stpsyr {
 
     // the publicly exposed function to modify self.adjusts
     pub fn add_adjust(&mut self, owner: Power, province: Province, action: AdjustAction) {
+        match self.phase {
+            Phase::Builds => {},
+            _ => panic!("add_adjust called during non-build phase")
+        }
+
+        // TODO build verification and such
+
         self.adjusts.push(Adjust {
             owner: owner,
             province: province,
