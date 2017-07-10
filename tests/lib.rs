@@ -75,8 +75,8 @@ fn test_from_file(filename: &str) {
     let f = File::open(filename).expect(err_msg);
     let file = BufReader::new(&f);
     let mut title = String::new();
-    let mut cache = String::new();
     let mut s = Stpsyr::new("data/standard.csv");
+    let mut power = None;
     for line in file.lines() {
         let line = line.unwrap();
         match line.chars().next() {
@@ -87,14 +87,12 @@ fn test_from_file(filename: &str) {
                 s = Stpsyr::new("data/standard.csv");
             },
             None => {
-                if !cache.is_empty() {
-                    println!("CACHE: {}", cache);
-                    s.parse(cache);
+                if power.is_some() {
                     s.apply();
-                    cache = String::new();
+                    power = None;
                 }
             },
-            _ => {
+            Some(ch) => {
                 if line.contains(':') {
                     let mut parts = line.split(": ");
                     let province = parts.next().expect(err_msg);
@@ -107,8 +105,10 @@ fn test_from_file(filename: &str) {
                         panic!("file {}, test \"{}\": in {}, expected {}, found {}",
                             filename, title, province, assert_unit, real_unit);
                     }
+                } else if ch == ' ' {
+                    s.parse(power.as_ref().unwrap(), line);
                 } else {
-                    cache = format!("{}{}\n", cache, line);
+                    power = Some(Power::from(line));
                 }
             }
         }
