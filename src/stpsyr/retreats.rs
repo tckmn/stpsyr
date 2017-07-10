@@ -55,35 +55,42 @@ impl Stpsyr {
     //   the comment in the right place
     pub fn apply_retreats(&mut self) {
         self.dislodged = vec![];
-        let (mut attempts, mut conflicts) = (HashSet::new(), HashSet::new());
 
-        for ref retreat in &self.retreats {
-            match &retreat.action {
-                &RetreatAction::Move { ref to } => {
-                    if attempts.contains(to) { conflicts.insert(to); }
-                    else { attempts.insert(to); }
-                },
-                _ => {}
+        {
+            // we need a new scope for these to release the borrows later
+            let (mut attempts, mut conflicts) = (HashSet::new(), HashSet::new());
+
+            for retreat in self.retreats.iter() {
+                match &retreat.action {
+                    &RetreatAction::Move { ref to } => {
+                        if attempts.contains(to) { conflicts.insert(to); }
+                        else { attempts.insert(to); }
+                    },
+                    _ => {}
+                }
+            }
+
+            for retreat in self.retreats.iter() {
+                match &retreat.action {
+                    &RetreatAction::Move { ref to } => {
+                        if !conflicts.contains(to) {
+                            // process the retreat
+                            let from_idx = self.map.iter()
+                                .position(|r| r.province == retreat.province).unwrap();
+                            let to_idx = self.map.iter()
+                                .position(|r| r.province == *to).unwrap();
+                            assert!(self.map[to_idx].unit.is_none());
+                            self.map[to_idx].unit = self.map[from_idx].unit.clone();
+                        }
+                    },
+                    // handle disbands as if they were NMRs - no difference anyway
+                    &RetreatAction::Disband => {}
+                }
             }
         }
 
-        for ref retreat in &self.retreats {
-            match &retreat.action {
-                &RetreatAction::Move { ref to } => {
-                    if !conflicts.contains(to) {
-                        // process the retreat
-                        let from_idx = self.map.iter()
-                            .position(|r| r.province == retreat.province).unwrap();
-                        let to_idx = self.map.iter()
-                            .position(|r| r.province == *to).unwrap();
-                        assert!(self.map[to_idx].unit.is_none());
-                        self.map[to_idx].unit = self.map[from_idx].unit.clone();
-                    }
-                },
-                // handle disbands as if they were NMRs - no difference anyway
-                &RetreatAction::Disband => {}
-            }
-        }
+        self.next_phase();
+        self.retreats = vec![];
     }
 
 }

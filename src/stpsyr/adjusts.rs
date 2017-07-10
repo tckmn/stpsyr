@@ -66,6 +66,7 @@ impl Stpsyr {
             }
         }
 
+        self.next_phase();
         self.adjusts = vec![];
     }
 

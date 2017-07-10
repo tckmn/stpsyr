@@ -90,6 +90,9 @@ Turkey
 Italy
     F ion-aeg
 
+// skip builds
+Turkey
+
 Turkey
     F bul S A bud-rum
 Austria
@@ -118,6 +121,9 @@ France
 Italy
     A pie-mar
     F tys-lyo
+
+// skip builds
+France
 
 France
     A por S F mao-spa
@@ -148,6 +154,9 @@ Italy
     A pie-mar
     F tys-lyo
 
+// skip builds
+France
+
 France
     A por S F mao-spa/sc
     F mao-spa/nc
@@ -167,6 +176,9 @@ France
 France
     F mao-spa/sc
 
+// skip builds
+France
+
 France
     F spa/nc-lyo
 
@@ -180,6 +192,9 @@ France
 
 France
     F mao-spa/nc
+
+// skip builds
+France
 
 France
     F spa/sc-lyo
@@ -208,6 +223,9 @@ Turkey
 Russia
     A rum-bul/nc
 
+// skip builds
+Turkey
+
 Turkey
     F con-bul/sc
 Russia
@@ -217,4 +235,4 @@ con: Fleet Turkey
 bul: Fleet Russia
 
 # 14. Building with unspecified coast
-# TODO (pending builds)
+// TODO (pending builds)

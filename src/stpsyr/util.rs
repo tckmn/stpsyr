@@ -46,4 +46,26 @@ impl Stpsyr {
         counts
     }
 
+    pub fn next_phase(&mut self) {
+        self.phase = match self.phase {
+            Phase::SpringDiplomacy => if self.dislodged.is_empty() {
+                Phase::FallDiplomacy
+            } else {
+                Phase::SpringRetreats
+            },
+            Phase::SpringRetreats => Phase::FallDiplomacy,
+            Phase::FallDiplomacy | Phase::FallRetreats =>
+                if self.phase == Phase::FallRetreats || self.dislodged.is_empty() {
+                    if self.sc_counts() != self.unit_counts() {
+                        Phase::Builds
+                    } else {
+                        Phase::SpringDiplomacy
+                    }
+                } else {
+                    Phase::FallRetreats
+                },
+            Phase::Builds => { self.year += 1; Phase::SpringDiplomacy }
+        };
+    }
+
 }

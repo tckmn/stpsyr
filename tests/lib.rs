@@ -48,7 +48,7 @@ macro_rules! convoy_order {
 
 macro_rules! order {
     ($s:ident, $orders:expr) => (
-        $s.parse_orders(String::from($orders));
+        $s.parse(String::from($orders));
     )
 }
 
@@ -83,13 +83,14 @@ fn test_from_file(filename: &str) {
             Some('/') => {},
             Some('#') => {
                 title = line.chars().skip(2).collect();
+                println!("begin test for test case \"{}\"", title);
                 s = Stpsyr::new("data/standard.csv");
             },
             None => {
-                println!("CACHE: {:?}", cache);
                 if !cache.is_empty() {
-                    s.parse_orders(cache);
-                    s.apply_orders();
+                    println!("CACHE: {}", cache);
+                    s.parse(cache);
+                    s.apply();
                     cache = String::new();
                 }
             },
@@ -125,118 +126,8 @@ fn test_datc_6b() {
 }
 
 #[test]
-fn test_datc_6c1() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Turkey", "ank", "con", false);
-    move_order!(s, "Turkey", "con", "smy", false);
-    move_order!(s, "Turkey", "smy", "ank", false);
-    s.apply_orders();
-    assert_unit!(s, "con", "Fleet Turkey");
-}
-
-#[test]
-fn test_datc_6c2() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Russia", "sev", "bla", false);
-    s.apply_orders();
-    support_move_order!(s, "Russia", "bla", "smy", "ank");
-    move_order!(s, "Turkey", "ank", "con", false);
-    move_order!(s, "Turkey", "con", "smy", false);
-    move_order!(s, "Turkey", "smy", "ank", false);
-    s.apply_orders();
-    assert_unit!(s, "con", "Fleet Turkey");
-}
-
-#[test]
-fn test_datc_6c3() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Russia", "sev", "bla", false);
-    s.apply_orders();
-    move_order!(s, "Russia", "bla", "ank", false);
-    move_order!(s, "Turkey", "ank", "con", false);
-    move_order!(s, "Turkey", "con", "smy", false);
-    move_order!(s, "Turkey", "smy", "ank", false);
-    s.apply_orders();
-    assert_unit!(s, "ank", "Fleet Turkey");
-}
-
-#[test]
-fn test_datc_6c4() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Turkey", "ank", "bla", false);
-    move_order!(s, "Turkey", "smy", "con", false);
-    move_order!(s, "Turkey", "con", "bul", false);
-    move_order!(s, "Austria", "bud", "rum", false);
-    s.apply_orders();
-    move_order!(s, "Russia", "sev", "bla", false);
-    move_order!(s, "Turkey", "con", "bul", false);
-    move_order!(s, "Turkey", "bul", "rum", false);
-    convoy_order!(s, "Turkey", "bla", "rum", "con");
-    move_order!(s, "Austria", "rum", "con", true);
-    s.apply_orders();
-    assert_unit!(s, "con", "Army Austria");
-}
-
-#[test]
-fn test_datc_6c5() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "France", "bre", "eng", false);
-    move_order!(s, "France", "par", "bre", false);
-    move_order!(s, "France", "mar", "bur", false);
-    move_order!(s, "Germany", "mun", "ruh", false);
-    move_order!(s, "England", "edi", "nth", false);
-    s.apply_orders();
-    move_order!(s, "France", "bur", "pic", false);
-    move_order!(s, "Germany", "ruh", "bel", false);
-    s.apply_orders();
-    move_order!(s, "Germany", "bel", "pic", false);
-    move_order!(s, "France", "pic", "bre", false);
-    convoy_order!(s, "France", "eng", "bre", "bel");
-    move_order!(s, "France", "bre", "bel", true);
-    move_order!(s, "England", "nth", "eng", false);
-    support_move_order!(s, "England", "lon", "nth", "eng");
-    s.apply_orders();
-    assert_unit!(s, "pic", "Army France");
-}
-
-#[test]
-fn test_datc_6c6() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "France", "bre", "eng", false);
-    move_order!(s, "France", "par", "pic", false);
-    move_order!(s, "England", "lon", "nth", false);
-    move_order!(s, "England", "lvp", "yor", false);
-    s.apply_orders();
-    move_order!(s, "France", "pic", "bel", false);
-    move_order!(s, "England", "yor", "lon", false);
-    s.apply_orders();
-    convoy_order!(s, "France", "eng", "bel", "lon");
-    move_order!(s, "France", "bel", "lon", true);
-    convoy_order!(s, "England", "nth", "lon", "bel");
-    move_order!(s, "England", "lon", "bel", true);
-    s.apply_orders();
-    assert_unit!(s, "bel", "Army England");
-}
-
-#[test]
-fn test_datc_6c7() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "France", "mar", "bur", false);
-    move_order!(s, "France", "bre", "eng", false);
-    move_order!(s, "France", "par", "pic", false);
-    move_order!(s, "England", "lon", "nth", false);
-    move_order!(s, "England", "lvp", "yor", false);
-    s.apply_orders();
-    move_order!(s, "France", "pic", "bel", false);
-    move_order!(s, "England", "yor", "lon", false);
-    s.apply_orders();
-    move_order!(s, "France", "bur", "bel", false);
-    convoy_order!(s, "France", "eng", "bel", "lon");
-    move_order!(s, "France", "bel", "lon", true);
-    convoy_order!(s, "England", "nth", "lon", "bel");
-    move_order!(s, "England", "lon", "bel", true);
-    s.apply_orders();
-    assert_unit!(s, "lon", "Army England");
+fn test_datc_6c() {
+    test_from_file("tests/datc-6.c.txt");
 }
 
 #[test]
@@ -260,6 +151,7 @@ fn test_coast() {
     move_order!(s, "Turkey", "con", "bul/nc", false);
     move_order!(s, "Turkey", "bul", "gre", false);
     s.apply_orders();
+    s.apply_adjusts();
     support_move_order!(s, "Turkey", "bul", "bud", "rum");
     move_order!(s, "Austria", "bud", "rum", false);
     move_order!(s, "Russia", "sev", "rum", false);

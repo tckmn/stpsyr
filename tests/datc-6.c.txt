@@ -1,0 +1,141 @@
+# 1. Three army circular movement
+
+Turkey
+    F ank-con
+    A con-smy
+    A smy-ank
+
+con: Fleet Turkey
+
+# 2. Three army circular movement with support
+
+Russia
+    F sev-bla
+
+Russia
+    F bla S A smy-ank
+Turkey
+    F ank-con
+    A con-smy
+    A smy-ank
+
+con: Fleet Turkey
+
+# 3. A disrupted three army circular movement
+
+Russia
+    F sev-bla
+
+Russia
+    F bla-ank
+Turkey
+    F ank-con
+    A con-smy
+    A smy-ank
+
+ank: Fleet Turkey
+
+# 4. A circular movement with attacked convoy
+
+Turkey
+    F ank-bla
+    A smy-con
+    A con-bul
+Austria
+    A bud-rum
+
+Russia
+    F sev-bla
+Turkey
+    A con-bul
+    A bul-rum
+    F bla C A rum-con
+Austria
+    A rum-con (via convoy)
+
+con: Army Austria
+
+# 5. A disrupted circular movement due to dislodged convoy
+
+France
+    F bre-eng
+    A par-bre
+    A mar-bur
+Germany
+    A mun-ruh
+England
+    F edi-nth
+
+France
+    A bur-pic
+Germany
+    A ruh-bel
+
+// skip builds
+France
+
+Germany
+    A bel-pic
+France
+    F pic-bre
+    F eng C A bre-bel
+    A bre-bel (via convoy)
+England
+    F nth-eng
+    F lon S F nth-eng
+
+pic: Army France
+
+# 6. Two armies with two convoys
+
+France
+    F bre-eng
+    A par-pic
+England
+    F lon-nth
+    A lvp-yor
+
+France
+    A pic-bel
+England
+    A yor-lon
+
+// skip builds
+France
+
+France
+    F eng C A bel-lon
+    A bel-lon (via convoy)
+England
+    F nth C A lon-bel
+    A lon-bel (via convoy)
+
+bel: Army England
+
+# 7. Disrupted unit swap
+
+France
+    A mar-bur
+    F bre-eng
+    A par-pic
+England
+    F lon-nth
+    A lvp-yor
+
+France
+    A pic-bel
+England
+    A yor-lon
+
+// skip builds
+France
+
+France
+    A bur-bel
+    F eng C A bel-lon
+    A bel-lon (via convoy)
+England
+    F nth C A lon-bel
+    A lon-bel (via convoy)
+
+lon: Army England

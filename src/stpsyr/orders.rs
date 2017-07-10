@@ -67,7 +67,7 @@ impl Stpsyr {
     //   have been added
     // TODO support retreats and builds
     // TODO clear self.contested
-    pub fn apply_orders(&mut self) -> Vec<(Province, Unit)> {
+    pub fn apply_orders(&mut self) {
         // resolve all orders
         for i in 0..self.orders.len() {
             self.resolve(i);
@@ -78,32 +78,10 @@ impl Stpsyr {
         // do the moves that were successfully resolved
         self.apply_resolved();
 
-        // update phase data
-        self.phase = match self.phase {
-            Phase::SpringDiplomacy => if self.dislodged.is_empty() {
-                Phase::FallDiplomacy
-            } else {
-                Phase::SpringRetreats
-            },
-            Phase::SpringRetreats => Phase::FallDiplomacy,
-            Phase::FallDiplomacy | Phase::FallRetreats =>
-                if self.phase == Phase::FallRetreats || self.dislodged.is_empty() {
-                    if self.sc_counts() != self.unit_counts() {
-                        Phase::Builds
-                    } else {
-                        Phase::SpringDiplomacy
-                    }
-                } else {
-                    Phase::FallRetreats
-                },
-            Phase::Builds => { self.year += 1; Phase::SpringDiplomacy }
-        };
-
         println!("{:?} {}: {:?}", self.phase, self.year, self.map);
 
-        // clear out orders, return dislodged units
+        self.next_phase();
         self.orders = vec![];
-        self.dislodged.clone()
     }
 
 }

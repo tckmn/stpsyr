@@ -3,7 +3,29 @@ use stpsyr::types::*;
 impl Stpsyr {
 
     // parse orders as a string and apply them
-    pub fn parse_orders(&mut self, orders: String) {
+    pub fn parse(&mut self, orders: String) {
+        match self.phase {
+            Phase::SpringDiplomacy | Phase::FallDiplomacy =>
+                self.parse_orders(orders),
+            Phase::SpringRetreats | Phase::FallRetreats =>
+                self.parse_retreats(orders),
+            Phase::Builds =>
+                self.parse_adjusts(orders)
+        }
+    }
+
+    pub fn apply(&mut self) {
+        match self.phase {
+            Phase::SpringDiplomacy | Phase::FallDiplomacy =>
+                self.apply_orders(),
+            Phase::SpringRetreats | Phase::FallRetreats =>
+                self.apply_retreats(),
+            Phase::Builds =>
+                self.apply_adjusts()
+        }
+    }
+
+    fn parse_orders(&mut self, orders: String) {
         let mut power = Power::from(String::new());
 
         for line in orders.lines() {
@@ -75,6 +97,31 @@ impl Stpsyr {
                     } }
                 }
             }
+        }
+    }
+
+    fn parse_retreats(&mut self, orders: String) {
+        unimplemented!();
+    }
+
+    fn parse_adjusts(&mut self, orders: String) {
+        let mut power = Power::from(String::new());
+
+        for line in orders.lines() {
+            let line = line.to_lowercase()
+                .replace('-', " ")
+                .replace(" m ", " ")
+                .replace(" move ", " ")
+                .replace(" move to ", " ")
+                .replace(" moves ", " ")
+                .replace(" moves to ", " ")
+                .replace('(', " ")
+                .replace(')', " ")
+                .replace(" support ", " s ")
+                .replace(" supports ", " s ")
+                .replace("via convoy", "vc")
+                .replace(" convoy ", " c ")
+                .replace(" convoys ", " c ");
         }
     }
 
