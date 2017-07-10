@@ -1,0 +1,174 @@
+# 1. Supported hold can prevent dislodgement
+
+Italy
+    A ven-tyr
+    A rom-ven
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+Austria
+    A vie S A tri H
+
+tyr: Army Italy
+tri: Fleet Austria
+
+# 2. A move cuts support on hold
+
+Italy
+    A ven-tyr
+    A rom-ven
+Russia
+    A war-gal
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+Austria
+    A vie S A tri H
+Russia
+    A gal-vie
+
+tyr: empty
+tri: Army Italy
+
+# 3. A move cuts support on move
+
+Italy
+    A ven-tyr
+    A rom-ven
+
+Italy
+    A ven-tri
+    A tyr S A ven-tri
+Germany
+    A mun-tyr
+
+ven: Army Italy
+tri: Fleet Austria
+
+# 4. Support to hold on unit supporting a hold allowed
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    A bud-tri
+    F tri-adr
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+Austria
+    A vie S A tri H
+    A tri S A vie H
+
+tyr: Army Italy
+tri: Army Austria
+
+# 5. Support to hold on unit supporting a move allowed
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    A bud-ser
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+Austria
+    A vie S F tri H
+    A ser-alb
+    F tri S A ser-alb
+
+tyr: Army Italy
+tri: Fleet Austria
+
+# 6. Support to hold on convoying unit allowed
+
+England
+    F edi-nth
+    A lvp-yor
+France
+    F bre-eng
+Germany
+    F kie-hel
+
+England
+    A yor-bel (via convoy)
+    F nth C A yor-bel
+    F lon S F nth H
+France
+    F eng-nth
+Germany
+    F kie S F eng-nth
+
+nth: Fleet England
+bel: Army England
+
+# 7. Support to hold on moving unit not allowed
+
+Italy
+    A ven-tyr
+    A rom-ven
+    F nap-apu
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+    F apu-adr
+Austria
+    A bud S F tri H
+    F tri-adr
+
+tri: Army Italy
+adr: empty
+
+# 8. Failed convoy cannot receive hold support
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    A vie-tri
+    F tri-adr
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+    F nap-apu
+Austria
+    F adr C A tri-apu
+    A tri-apu (via convoy)
+
+tri: Army Italy
+apu: empty
+
+# 9. Support to move on holding unit not allowed
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    F tri-adr
+    A bud-tri
+
+Italy
+    A ven-tri
+    A tyr S A ven-tri
+Austria
+    A tri H
+    A vie S A tri-rom
+
+tri: Army Italy
+
+# 10. Self dislodgement prohibited
+
+Germany
+    A ber H
+    F kie-ber
+    A mun S F kie-ber
+
+kie: Fleet Germany
+ber: Army Germany

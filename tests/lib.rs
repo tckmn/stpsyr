@@ -116,19 +116,13 @@ fn test_from_file(filename: &str) {
 }
 
 #[test]
-fn test_datc_6a() {
-    test_from_file("tests/datc-6.a.txt");
-}
-
+fn test_datc_6a() { test_from_file("tests/datc-6.a.txt"); }
 #[test]
-fn test_datc_6b() {
-    test_from_file("tests/datc-6.b.txt");
-}
-
+fn test_datc_6b() { test_from_file("tests/datc-6.b.txt"); }
 #[test]
-fn test_datc_6c() {
-    test_from_file("tests/datc-6.c.txt");
-}
+fn test_datc_6c() { test_from_file("tests/datc-6.c.txt"); }
+#[test]
+fn test_datc_6d() { test_from_file("tests/datc-6.d.txt"); }
 
 #[test]
 fn test_convoy() {
