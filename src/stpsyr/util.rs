@@ -47,6 +47,16 @@ impl Stpsyr {
     }
 
     pub fn next_phase(&mut self) {
+        // update ownership
+        for ref mut r in self.map.iter_mut() {
+            if !r.sc || self.phase == Phase::FallDiplomacy ||
+                    self.phase == Phase::FallRetreats {
+                if let Some(ref unit) = r.unit {
+                    r.owner = Some(unit.owner.clone());
+                }
+            }
+        }
+
         self.phase = match self.phase {
             Phase::SpringDiplomacy => if self.dislodged.is_empty() {
                 Phase::FallDiplomacy

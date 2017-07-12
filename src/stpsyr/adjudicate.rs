@@ -25,9 +25,6 @@ impl Stpsyr {
                     }
 
                     self.map[to_idx].unit = old_map[from_idx].unit.clone();
-                    if !self.map[to_idx].sc || self.phase == Phase::FallDiplomacy {
-                        self.map[to_idx].owner = old_map[from_idx].owner.clone();
-                    }
 
                     if let Some(_) = to.coast {
                         self.map[to_idx].province.coast =
