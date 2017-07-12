@@ -14,6 +14,8 @@ mod parse;
 pub use self::parse::*;
 mod retreats;
 pub use self::retreats::*;
+mod svg;
+pub use self::svg::*;
 mod util;
 pub use self::util::*;
 

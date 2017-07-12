@@ -1,5 +1,6 @@
 use std::fmt;
 use std::cmp;
+use std::hash;
 
 use std::collections::HashSet;
 
@@ -20,7 +21,7 @@ pub enum UnitType { Army, Fleet }
 
 // a Province is an extension of a String, partially for semantics, but also
 //   because we need to take coasts into account when enumerating borders
-#[derive(Clone,Eq,Hash)]
+#[derive(Clone,Eq)]
 pub struct Province {
     pub name: String,
     pub coast: Option<char>,
@@ -55,7 +56,11 @@ impl cmp::PartialEq for Province {
         self.name == other.name
     }
 }
-
+impl hash::Hash for Province {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
 
 // a Power is simply a wrapper around a String for semantics
 // ex. Germany, Austria

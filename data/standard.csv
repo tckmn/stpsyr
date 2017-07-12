@@ -10,7 +10,7 @@ bar,false,,,stp/nc nwy nwg,
 bel,true,,,eng nth hol pic,bur ruh hol pic
 ber,true,Germany,Army,bal pru kie,mun sil kie pru
 bla,false,,,sev arm ank con bul/nc rum,
-boh,false,,,,mun sil gal vie tyr
+boh,false,Austria,,,mun sil gal vie tyr
 bre,true,France,Fleet,mao eng pic gas,par pic gas
 bud,true,Austria,Army,,vie gal rum ser tri
 bul/nc,true,,,rum bla con,ser rum gre con
@@ -50,13 +50,13 @@ par,true,France,Army,,bre pic bur mar gas
 pic,false,France,,eng nth bel bre,par bur bre bel
 pie,false,Italy,,mar lyo tus,ven tyr mar tus
 por,true,,,mao spa/nc spa/sc,spa
-pru,false,Austria,,bal lvn ber,war sil ber lvn
+pru,false,Germany,,bal lvn ber,war sil ber lvn
 rom,true,Italy,Army,tus nap tys,ven apu nap tus
-ruh,false,Austria,,,bel hol kie mun bur
+ruh,false,Germany,,,bel hol kie mun bur
 rum,true,,,bla bul/nc sev,ser bud gal ukr sev bul
 ser,true,,,,alb tri bud rum bul gre
 sev,true,Russia,Fleet,arm bla rum,ukr mos arm rum
-sil,false,Austria,,,ber pru war gal boh mun
+sil,false,Germany,,,ber pru war gal boh mun
 ska,false,,,nwy swe den nth,
 smy,true,Turkey,Army,syr con aeg eas,ank arm con syr
 spa/nc,true,,,por mao gas,por gas mar
@@ -68,7 +68,7 @@ syr,false,Turkey,,smy eas,smy arm
 tri,true,Austria,Fleet,adr ven alb,tyr vie bud ser ven alb
 tun,true,,,ion tys wes naf,naf
 tus,false,Italy,,lyo tys rom pie,ven pie rom
-tyr,false,,,,pie ven tri vie boh mun
+tyr,false,Austria,,,pie ven tri vie boh mun
 tys,false,,,ion tun wes lyo tus rom nap,
 ukr,false,Russia,,,sev rum gal war mos
 ven,true,Italy,Army,tri adr apu,rom tus pie tyr tri apu
