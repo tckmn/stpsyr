@@ -27,6 +27,8 @@ impl Stpsyr {
             _ => (false, false)
         }; // NOTE use this better
 
+        // TODO ensure convoying fleets are on open water
+
         // can't convoy a fleet
         if convoyed && unit.unit_type == UnitType::Fleet { return; }
 

@@ -244,9 +244,17 @@ impl Stpsyr {
         // otherwise, find the next fleet in the chain
         self.map.iter().filter(|&r|
                 // it's empty water if we can move to it as a fleet but can't
-                //   move to it as an army
+                // move to it as an army
                 region.fleet_borders.contains(&r.province) &&
                 !region.army_borders.contains(&r.province) &&
+                // check for the presence of the appropriate order
+                self.orders.iter().any(|o|
+                    o.province == r.province && match o.action {
+                        Action::Convoy { ref from, ref to } => {
+                            *from == path[0].province && *to == *target
+                        }, _ => false
+                    }
+                ) &&
                 // we also need to make sure we don't get in an infinite loop
                 !path.contains(&&r)).flat_map(|r| {
                     // add the next fleet to the path
