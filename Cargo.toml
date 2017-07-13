@@ -1,7 +1,9 @@
 [package]
 name = "stpsyr"
+description = "a Diplomacy adjudicator in Rust"
 version = "0.1.0"
 authors = ["KeyboardFire <andy@keyboardfire.com>"]
+license = "GPL-3.0"
 
 [dependencies]
 csv = "0.14"
