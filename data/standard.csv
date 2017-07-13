@@ -61,8 +61,8 @@ ska,false,,,nwy swe den nth,
 smy,true,Turkey,Army,syr con aeg eas,ank arm con syr
 spa/nc,true,,,por mao gas,por gas mar
 spa/sc,true,,,por mao mar lyo wes,por gas mar
-stp/nc,true,Russia,Fleet,bar nwy,mos lvn fin
 stp/sc,true,Russia,Fleet,fin bot lvn,mos lvn fin
+stp/nc,true,Russia,,bar nwy,mos lvn fin
 swe,true,,,nwy fin bot bal den ska,nwy fin den
 syr,false,Turkey,,smy eas,smy arm
 tri,true,Austria,Fleet,adr ven alb,tyr vie bud ser ven alb
