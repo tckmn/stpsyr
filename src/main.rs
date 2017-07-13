@@ -21,39 +21,7 @@ use stpsyr::*;
 
 fn main() {
     let mut s = Stpsyr::new("data/standard.csv");
-
-    let (italy, austria, germany) =
-        (Power::from("Italy"), Power::from("Austria"), Power::from("Germany"));
-
-    // spring
-    s.parse(&italy, "
-        F Nap-ION
-        A Rom-Ven
-        A Ven-Tyr".to_string());
-    s.parse(&austria, "
-        A Vie-Tyr".to_string());
-    s.parse(&germany, "
-        A Mun S A Ven-Tyr".to_string());
+    s.parse(&Power::from("Italy"), "A ven-tyr".to_string());
     s.apply();
-
-    // autumn
-    s.parse(&italy, "
-        A Tyr-Tri
-        A Ven S A Tyr-Tri
-        F ION-Tun".to_string());
-    s.apply();
-
-    s.parse(&austria, "
-        Tri-Alb".to_string());
-    s.apply();
-
-    // winter
-    s.parse(&austria, "
-        D Alb".to_string());
-    s.parse(&italy, "
-        B A Rom
-        B F Nap".to_string());
-    s.apply();
-
     s.render_svg("meems.svg".to_string()).unwrap();
 }
