@@ -28,6 +28,8 @@ impl Stpsyr {
         }; // NOTE use this better
 
         // TODO ensure convoying fleets are on open water
+        // TODO ensure convoying armies actually have the requisite fleets
+        // (c.f. DATC 6.D.32)
 
         // can't convoy a fleet
         if convoyed && unit.unit_type == UnitType::Fleet { return; }

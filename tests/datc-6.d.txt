@@ -172,3 +172,438 @@ Germany
 
 kie: Fleet Germany
 ber: Army Germany
+
+# 11. No self dislodgement of returning unit
+
+Germany
+    A ber-pru
+    F kie-ber
+    A mun S F kie-ber
+Russia
+    A war-pru
+
+kie: Fleet Germany
+ber: Army Germany
+pru: empty
+
+# 12. Supporting a foreign unit to dislodge own unit prohibited
+
+Austria
+    F tri H
+    A vie S A ven-tri
+Italy
+    A ven-tri
+
+tri: Fleet Austria
+
+# 13. Supporting a foriegn unit to dislodge a returning own unit prohibited
+
+France
+    A mar-pie
+Italy
+    A ven-pie
+    A rom-ven
+Austria
+    F tri S A rom-ven
+
+pie: empty
+ven: Army Italy
+mar: Army France
+
+# 14. Supporting a foreign unit is not enough to prevent dislodgement
+
+Italy
+    A ven-tyr
+    A rom-ven
+
+Italy
+    A ven S A tyr-tri
+    A tyr-tri
+Austria
+    A bud S A tyr-tri
+
+tri: Army Italy
+tyr: empty
+
+# 15. Defender cannot cut support for attack on itself
+
+Italy
+    A ven-tyr
+    A rom-ven
+
+Italy
+    A tyr S A ven-tri
+    A ven-tri
+Austria
+    F tri-tyr
+
+tri: Army Italy
+ven: empty
+
+# 16. Convoying a unit dislodging a unit of same power is allowed
+
+Germany
+    F kie-hel
+    A ber-kie
+    A mun-sil
+Russia
+    A war-pru
+    F stp-bot
+
+Russia
+    F bot-bal
+
+Germany
+    A kie-pru (via convoy)
+    A sil S A kie-pru
+Russia
+    A pru H
+    F bal C A kie-pru
+
+kie: empty
+pru: Army Germany
+
+# 17. Dislodgement cuts supports
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    F tri-alb
+
+Germany
+    A mun S A vie-tyr
+Austria
+    A vie-tyr
+    F alb-tri
+Italy
+    A tyr S A ven-tri
+    A ven-tri
+
+tyr: Army Austria
+ven: Army Italy
+tri: empty
+alb: Fleet Austria
+
+# 18. A surviving unit will sustain support
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    F tri-alb
+    A bud-tri
+
+Italy
+    A tyr S A ven-tri
+    A ven-tri
+Austria
+    A tri-tyr
+    A vie S A tri-tyr
+Germany
+    A mun S A tyr H
+
+tyr: Army Italy
+ven: empty
+tri: Army Italy
+
+# 19. Even when surviving is in alternative way
+
+Austria
+    F tri-adr
+    A vie-tyr
+    A bud-tri
+
+Italy
+    A ven-tri
+Austria
+    A tri S A tyr-ven
+    A tyr-ven
+    F adr S A ven-tri
+
+tri: Army Austria
+ven: Army Austria
+
+# 20. Unit cannot cut support of its own country
+
+Italy
+    A ven-tyr
+    A rom-ven
+    F nap-apu
+
+Italy
+    F apu-ven
+    A ven S A tyr-tri
+    A tyr-tri
+
+tyr: empty
+tri: Army Italy
+
+# 21. Disloding a unit does not cancel a support cut
+
+France
+    A par-bur
+Austria
+    A vie-boh
+Italy
+    A ven-tyr
+    A rom-ven
+
+France
+    A bur-mun
+Austria
+    A vie S A bur-mun
+Germany
+    A mun-tyr
+Italy
+    A tyr S A ven-tri
+    A ven-tri
+
+ven: Army Italy
+tri: Fleet Austria
+
+# 22. Impossible fleet move can not be supported
+
+Italy
+    A ven-tyr
+    A rom-ven
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+Austria
+    F tri-tyr
+    A vie S F tri-tyr
+
+tyr: empty
+tri: Army Italy
+
+# 23. Impossible coast move can not be supported
+
+England
+    F edi-nwg
+    F lon-nth
+Russia
+    F stp-bot
+    A mos-stp
+
+Russia
+    A stp-fin
+    F bot-stp/sc
+
+England
+    F nwg S F nth-nwy
+    F nth-nwy
+Russia
+    A fin S F stp-nwy
+    F stp-nwy
+
+nwy: Fleet England
+
+# 24. Impossible army move cannot be supported
+
+England
+    F lon-nth
+    A lvp-yor
+    F edi-nwg
+Germany
+    F kie-hel
+France
+    F bre-eng
+
+England
+    F nwg S A yor-nth
+    A yor-nth
+    F nth H
+Germany
+    F hel S F eng-nth
+France
+    F eng-nth
+
+nth: Fleet France
+
+# 25. Failing hold support can be supported
+
+Italy
+    A ven-tyr
+    A rom-ven
+
+Italy
+    A ven-tri
+    A tyr S A ven-tri
+Austria
+    F tri S A ven H
+    A vie S F tri H
+
+tri: Fleet Austria
+
+# 26. Failing move support can be supported
+
+Italy
+    A ven-tyr
+    A rom-ven
+
+Italy
+    A ven-tri
+    A tyr S A ven-tri
+Austria
+    F tri S A tyr-ven
+    A vie S F tri H
+
+tri: Fleet Austria
+
+# 27. Failing convoy can be supported
+
+England
+    F lon-nth
+    A lvp-yor
+France
+    F bre-eng
+Germany
+    F kie-hel
+
+England
+    F nth C A yor-nwy
+    F edi S F nth H
+    A yor H
+France
+    F eng-nth
+Germany
+    F hel S F eng-nth
+
+nth: Fleet England
+
+# 28. Impossible move and support
+
+Italy
+    A ven-tyr
+    A rom-ven
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+Austria
+    F tri-fin
+    A vie S F tri H
+
+tri: Fleet Austria
+
+# 29. Move to impossible coast and support
+
+Turkey
+    A con-bul
+    F ank-con
+Italy
+    F nap-ion
+Austria
+    F tri-alb
+
+Turkey
+    A bul-ser
+    F con-aeg
+Italy
+    F ion-gre
+
+// skip builds
+Turkey
+
+Italy
+    F gre-bul/ec
+Austria
+    F alb S F gre H
+Turkey
+    A ser-gre
+    F aeg S A ser-gre
+
+gre: Fleet Italy
+bul: empty
+
+# 30. Move without coast and support
+
+Turkey
+    A con-bul
+    F ank-con
+Italy
+    F nap-ion
+Austria
+    F tri-alb
+
+Turkey
+    A bul-ser
+    F con-aeg
+Italy
+    F ion-gre
+
+// skip builds
+Turkey
+
+Italy
+    F gre-bul
+Austria
+    F alb S F gre H
+Turkey
+    A ser-gre
+    F aeg S A ser-gre
+
+gre: Fleet Italy
+bul: empty
+
+// 31 does not apply
+
+# 32. A missing fleet
+// NOTE: THIS TEST CASE DIFFERS FROM DATC RECOMMENDATION!!!
+// (this will definitely be fixed at some point)
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    F tri-alb
+    A bud-tri
+
+Italy
+    A tyr-tri
+    A ven S A tyr-tri
+Austria
+    A vie S A tri H
+    A tri-stp (via convoy)
+
+tyr: empty
+tri: Army Italy
+
+# 33. Unwanted support allowed
+
+Italy
+    A rom-tus
+
+Italy
+    A ven-pie
+    A tus-pie
+France
+    A mar S A ven-pie
+Austria
+    F tri-ven
+
+pie: Army Italy
+tus: Army Italy
+tri: empty
+ven: Fleet Austria
+
+# 34. Support targeting own area not allowed
+
+France
+    A mar-pie
+Germany
+    A mun-tyr
+
+France
+    A pie-ven
+Germany
+    A tyr S A pie-ven
+Austria
+    F tri-ven
+Italy
+    A ven S F tri-ven
+
+pie: empty
+ven: Army France
