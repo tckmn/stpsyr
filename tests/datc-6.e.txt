@@ -1,0 +1,96 @@
+# 1. Dislodged unit has no effect on attackers area
+
+Italy
+    A ven-tyr
+    A rom-ven
+    F nap-apu
+
+Italy
+    A tyr S A ven-tri
+    A ven-tri
+    F apu-ven
+Austria
+    F tri-ven
+
+apu: empty
+ven: Fleet Italy
+
+# 2. No self dislodgement in head to head battle
+
+Italy
+    F nap-apu
+
+Italy
+    F apu-ven
+    A ven-apu
+    A rom S A ven-apu
+
+ven: Army Italy
+apu: Fleet Italy
+
+# 3. No help in dislodging own unit
+
+Italy
+    F nap-apu
+
+Italy
+    F apu-ven
+    A ven-apu
+Austria
+    F tri S F apu-ven
+
+ven: Army Italy
+apu: Fleet Italy
+
+# 4. Non-dislodged loser has still effect
+
+England
+    F edi-nth
+    A lvp-yor
+France
+    A par-bur
+Germany
+    F kie-hel
+Russia
+    A war-pru
+    A mos-war
+Austria
+    A vie-boh
+    A bud-vie
+Italy
+    A ven-tyr
+
+England
+    F nth C A yor-kie
+    A yor-kie (via convoy)
+France
+    A bur-ruh
+    A mar-bur
+Germany
+    F hel C A yor-kie
+Austria
+    A boh-sil
+    A vie-boh
+
+Germany
+    D hel
+
+England
+    A kie-mun
+France
+    A ruh S A kie-mun
+    A bur S A kie-mun
+Germany
+    A mun-sil
+    A ber S A mun-sil
+Russia
+    A war-sil
+    A pru S A war-sil
+Austria
+    A sil-mun
+    A boh S A sil-mun
+Italy
+    A tyr S A sil-mun
+
+mun: Army Germany
+sil: Army Austria
