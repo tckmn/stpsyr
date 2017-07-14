@@ -278,3 +278,43 @@ Italy
 mun: Army Germany
 tyr: Army Italy
 boh: Army Germany
+
+# 11. No self dislodgement with beleaguered garrison, unit swap with adjacent convoying and two coasts
+
+Turkey
+    A con-bul
+    F ank-con
+Russia
+    F sev-bla
+Austria
+    A bud-ser
+    A vie-bud
+    F tri-adr
+Italy
+    A ven-tri
+    F nap-ion
+
+Austria
+    A ser-gre
+    A bud-rum
+Italy
+    A tri-ser
+    F ion-aeg
+
+// skip builds
+Turkey
+
+Turkey
+    A bul-con (via convoy)
+    F con-bul/ec
+Russia
+    F bla C A bul-con
+Italy
+    A ser S F con-bul
+    F aeg S A gre-bul
+Austria
+    A rum S F con-bul
+    A gre-bul
+
+bul: Fleet Turkey
+con: Army Turkey
