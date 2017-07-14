@@ -314,10 +314,10 @@ impl Stpsyr {
         //   because we cannot call resolve if it is one, as that would cause
         //   the recursion to become infinite
         let move_id = self.orders.iter().find(|o|
-            match o.action {
-                Action::Move { ref to, .. } => *to != *province,
+            (convoyed || match o.action {
+                Action::Move { ref to, convoyed } => convoyed || *to != *province,
                 _ => false
-            } && o.province == *dest).map(|o| o.id);
+            }) && o.province == *dest).map(|o| o.id);
         let moved_away = move_id.map_or(false, |id| self.resolve(id));
 
         // we also figure out which power we're attacking
@@ -386,11 +386,11 @@ impl Stpsyr {
         // if we're in a head-to-head battle and lose, prevent strength is 0
         let move_id = self.orders.iter().find(|o|
             match o.action {
-                Action::Move { ref to, .. } => *to == *province,
+                Action::Move { ref to, convoyed } => !convoyed && *to == *province,
                 _ => false
             } && o.province == *dest).map(|o| o.id);
         if let Some(move_id) = move_id {
-            if self.resolve(move_id) { return 0; }
+            if !convoyed && self.resolve(move_id) { return 0; }
         }
 
         // otherwise, 1 plus number of successful support moves
