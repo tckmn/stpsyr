@@ -54,8 +54,6 @@ impl Stpsyr {
     //   but I'm lazy and don't wanna scroll all the way back up there to add
     //   the comment in the right place
     pub fn apply_retreats(&mut self) {
-        self.dislodged = vec![];
-
         {
             // we need a new scope for these to release the borrows later
             let (mut attempts, mut conflicts) = (HashSet::new(), HashSet::new());
@@ -72,12 +70,12 @@ impl Stpsyr {
                     RetreatAction::Move { ref to } => {
                         if !conflicts.contains(to) {
                             // process the retreat
-                            let from_idx = self.map.iter()
-                                .position(|r| r.province == retreat.province).unwrap();
+                            let from_idx = self.dislodged.iter()
+                                .position(|&(ref p, _)| *p == retreat.province).unwrap();
                             let to_idx = self.map.iter()
                                 .position(|r| r.province == *to).unwrap();
                             assert!(self.map[to_idx].unit.is_none());
-                            self.map[to_idx].unit = self.map[from_idx].unit.clone();
+                            self.map[to_idx].unit = Some(self.dislodged[from_idx].1.clone());
                         }
                     },
                     // handle disbands as if they were NMRs - no difference anyway
@@ -85,6 +83,8 @@ impl Stpsyr {
                 }
             }
         }
+
+        self.dislodged = vec![];
 
         self.next_phase();
         self.retreats = vec![];

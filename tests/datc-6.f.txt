@@ -1,0 +1,304 @@
+# 1. No convoy in coastal areas
+
+Turkey
+    A con-arm (via convoy)
+    F ank C A con-arm
+
+con: Army Turkey
+arm: empty
+
+# 2. An army being convoyed can bounce as normal
+
+England
+    A lvp-wal
+    F lon-eng
+
+England
+    A wal-pic (via convoy)
+    F eng C A wal-pic
+France
+    A par-pic
+
+pic: empty
+
+# 3. An army being convoyed can receive support
+
+England
+    A lvp-wal
+    F lon-eng
+France
+    A par-pic
+Germany
+    A mun-ruh
+
+England
+    A wal-bel (via convoy)
+    F eng C A wal-bel
+France
+    A pic-bel
+Germany
+    A ruh S A wal-bel
+
+bel: Army England
+
+# 4. An attacked convoy is not disrupted
+
+England
+    A lvp-wal
+    F lon-eng
+
+England
+    A wal-pic (via convoy)
+    F eng C A wal-pic
+France
+    F bre-eng
+
+pic: Army England
+
+# 5. A beleaguered convoy is not disrupted
+
+France
+    F bre-eng
+Germany
+    F kie-hel
+    A ber-kie
+
+France
+    F eng-bel
+Germany
+    F hel-nth
+    A kie-hol
+
+France
+    B F bre
+
+France
+    F bre-eng
+
+England
+    F edi-nth
+    F lon S F edi-nth
+France
+    F eng-nth
+    F bel S F eng-nth
+Germany
+    A hol-nwy (via convoy)
+    F nth C A hol-nwy
+
+nwy: Army Germany
+
+# 6. Dislodged convoy does not cut support
+
+England
+    F edi-nth
+    A lvp-yor
+France
+    F bre-eng
+    A mar-bur
+Germany
+    F kie-hel
+
+France
+    A bur-bel
+Germany
+    A mun-bur
+
+// skip builds
+France
+
+England
+    A yor-bel (via convoy)
+    F nth C A yor-bel
+France
+    A bel S A par-bur
+    A par-bur
+    F eng-nth
+Germany
+    F hel S F eng-nth
+
+bur: Army France
+
+# 7. Dislodged convoy does not cause contested area
+
+England
+    F edi-nth
+    A lvp-yor
+France
+    F bre-eng
+Germany
+    F kie-hel
+
+England
+    A yor-bel (via convoy)
+    F nth C A yor-bel
+France
+    F eng-nth
+Germany
+    F hel S F eng-nth
+
+England
+    F nth-bel
+
+bel: Fleet England
+
+# 8. Dislodged convoy does not cause a bounce
+
+England
+    F edi-nth
+    A lvp-yor
+France
+    F bre-eng
+    A par-pic
+Germany
+    F kie-hel
+
+England
+    A yor-bel (via convoy)
+    F nth C A yor-bel
+France
+    F eng-nth
+    A pic-bel
+Germany
+    F hel S F eng-nth
+
+bel: Army France
+
+# 9. Dislodge of multi-route convoy
+
+England
+    A lvp-yor
+    F edi-nth
+    F lon-eng
+France
+    F bre-mao
+    A mar-spa
+
+England
+    A yor-lon
+
+France
+    B F bre
+
+England
+    A lon-bel (via convoy)
+    F eng C A lon-bel
+    F nth C A lon-bel
+France
+    F bre-eng
+    F mao S F bre-eng
+
+bel: Army England
+
+# 10. Dislodge of multi-route convoy with foreign fleet
+
+France
+    F bre-eng
+    A par-pic
+Germany
+    F kie-hel
+England
+    F lon-yor
+
+France
+    A pic-bel
+Germany
+    F hel-nth
+
+// skip builds
+France
+
+France
+    A bel-lon (via convoy)
+    F eng C A bel-lon
+Germany
+    F nth C A bel-lon
+England
+    F edi-nth
+    F yor S F edi-nth
+
+lon: Army France
+
+# 11. Dislodge of multi-route convoy with only foreign fleets
+
+France
+    F bre-eng
+Germany
+    F kie-hel
+    A mun-ruh
+
+France
+    F eng-nth
+Germany
+    A ruh-bel
+England
+    F lon-eng
+
+// skip builds
+France
+
+France
+    F nth C A bel-lon
+Germany
+    A bel-lon (via convoy)
+    F hel S F edi-nth
+England
+    F edi-nth
+    F eng C A bel-lon
+
+lon: Army Germany
+
+# 12. Dislodged convoying fleet not on route
+
+France
+    F bre-pic
+    A par-bre
+Germany
+    F kie-hel
+England
+    F edi-nth
+    F lon-eng
+
+France
+    F pic-bel
+
+// skip builds
+France
+
+France
+    F bel-nth
+    A bre-wal (via convoy)
+Germany
+    F hel S F bel-nth
+England
+    F eng C bre-wal
+    F nth C bre-wal
+
+wal: Army France
+
+# 13. The unwanted alternative
+
+France
+    F bre-eng
+Germany
+    A mun-ruh
+    F kie-hel
+England
+    F lon-yor
+
+Germany
+    A ruh-bel
+    F hel-nth
+
+// skip builds
+France
+
+France
+    F eng C A bel-lon
+Germany
+    A bel-lon (via convoy)
+    F nth C A bel-lon
+England
+    F yor-nth
+    F lon S F yor-nth
+
+lon: Army Germany
