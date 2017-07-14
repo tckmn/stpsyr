@@ -19,7 +19,7 @@ impl Stpsyr {
         // find existing number of adjust orders for this power
         let mut dup = false;
         let num = self.adjusts.iter()
-            .filter(|&&Adjust { owner: ref o, province: ref p, action: _ }|
+            .filter(|&&Adjust { owner: ref o, province: ref p, .. }|
                     if owner == *o && province == *p {
                         dup = true; true
                     } else { owner == *o }).count() as i32;
@@ -27,7 +27,7 @@ impl Stpsyr {
         // fail if we're not allowed to build or destroy at all
         if dup || match action {
             AdjustAction::Disband => delta >= 0 || -num == delta,
-            AdjustAction::Build { unit_type: _ } => delta <= 0 || num == delta
+            AdjustAction::Build { .. } => delta <= 0 || num == delta
         } { return; }
 
         // now we have to check if the given province is a valid one to build/
@@ -55,7 +55,7 @@ impl Stpsyr {
     // the publicly exposed function that is called once all adjusts have been
     //   added
     pub fn apply_adjusts(&mut self) {
-        for adjust in self.adjusts.iter() {
+        for adjust in &self.adjusts {
             let region = self.map.iter_mut()
                 .find(|r| r.province == adjust.province).unwrap();
             match adjust.action {

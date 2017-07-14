@@ -25,8 +25,8 @@ impl Stpsyr {
 
         // can't order to a province you can't reach or a province that was
         //   contested during the last diplomacy phase
-        if match &action {
-            &RetreatAction::Move { ref to } => {
+        if match action {
+            RetreatAction::Move { ref to } => {
                 let r = self.get_region(&province).unwrap();
                 self.contested.contains(to) || !match unit.unit_type {
                     UnitType::Army => r.army_borders.clone(),
@@ -35,7 +35,7 @@ impl Stpsyr {
                             p.from_coast == r.province.coast &&
                             p.coast == to.coast)
                         .collect()
-                }.contains(&to)
+                }.contains(to)
             },
             _ => false
         } { return; }
@@ -60,19 +60,16 @@ impl Stpsyr {
             // we need a new scope for these to release the borrows later
             let (mut attempts, mut conflicts) = (HashSet::new(), HashSet::new());
 
-            for retreat in self.retreats.iter() {
-                match &retreat.action {
-                    &RetreatAction::Move { ref to } => {
-                        if attempts.contains(to) { conflicts.insert(to); }
-                        else { attempts.insert(to); }
-                    },
-                    _ => {}
+            for retreat in &self.retreats {
+                if let RetreatAction::Move { ref to } = retreat.action {
+                    if attempts.contains(to) { conflicts.insert(to); }
+                    else { attempts.insert(to); }
                 }
             }
 
-            for retreat in self.retreats.iter() {
-                match &retreat.action {
-                    &RetreatAction::Move { ref to } => {
+            for retreat in &self.retreats {
+                match retreat.action {
+                    RetreatAction::Move { ref to } => {
                         if !conflicts.contains(to) {
                             // process the retreat
                             let from_idx = self.map.iter()
@@ -84,7 +81,7 @@ impl Stpsyr {
                         }
                     },
                     // handle disbands as if they were NMRs - no difference anyway
-                    &RetreatAction::Disband => {}
+                    RetreatAction::Disband => {}
                 }
             }
         }

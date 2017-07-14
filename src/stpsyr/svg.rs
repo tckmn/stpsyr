@@ -81,7 +81,7 @@ impl Stpsyr {
                     writeln!(out_file, "{}", data_line)?;
 
                     // find the "visual" center of the polygon
-                    province_centers.insert(province, poly_center(points));
+                    province_centers.insert(province, poly_center(&points));
                 },
 
                 LookState::Provinces if line.trim().starts_with("d=\"") => {
@@ -98,9 +98,9 @@ impl Stpsyr {
                     write!(out_file, "{}", line)?;
                     line = String::new();
 
-                    for r in self.map.iter() {
+                    for r in &self.map {
                         if let Some(ref unit) = r.unit {
-                            let &(x, y) = province_centers.get(&r.province).unwrap();
+                            let &(x, y) = &province_centers[&r.province];
                             writeln!(out_file)?;
                             match unit.unit_type {
                                 UnitType::Army => write!(out_file,
@@ -136,10 +136,10 @@ r#"<g style="fill:#0000ff" transform="translate({},{})">
 
 }
 
-fn poly_center(verts: Vec<(f32, f32)>) -> (f32, f32) {
+fn poly_center(verts: &[(f32, f32)]) -> (f32, f32) {
     let (mut min_x, mut min_y, mut max_x, mut max_y) =
         (9999999f32, 9999999f32, 0f32, 0f32);
-    for p in verts.iter() {
+    for p in verts {
         if p.0 < min_x { min_x = p.0; }
         if p.0 > max_x { max_x = p.0; }
         if p.1 < min_y { min_y = p.1; }
@@ -154,7 +154,7 @@ fn poly_center(verts: Vec<(f32, f32)>) -> (f32, f32) {
             for j in 1..n {
                 let (i, j) = (i as f32, j as f32);
                 let (test_x, test_y) = (min_x + i*dx, min_y + j*dy);
-                let test_dist = poly_distance(&verts, (test_x, test_y));
+                let test_dist = poly_distance(verts, (test_x, test_y));
                 // you are about to experience true poetry
                 // please read the following code out loud
                 if test_dist > best_dist {
@@ -174,7 +174,7 @@ fn poly_center(verts: Vec<(f32, f32)>) -> (f32, f32) {
 }
 
 // this is one of those things where you just sort of accept it and move on
-fn poly_distance(verts: &Vec<(f32, f32)>, p: (f32, f32)) -> f32 {
+fn poly_distance(verts: &[(f32, f32)], p: (f32, f32)) -> f32 {
     let mut dist = 9999999f32;
     let mut inside = false;
     for it in verts.windows(2) {
