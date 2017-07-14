@@ -318,3 +318,127 @@ Austria
 
 bul: Fleet Turkey
 con: Army Turkey
+
+# 12. Support on attack on own unit can be used for other means
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    A bud-tri
+    F tri-alb
+
+Italy
+    A tyr-tri
+    A ven S A mun-tyr
+Germany
+    A mun-tyr
+Austria
+    A vie-tyr
+    A tri S A vie-tyr
+
+tyr: Army Italy
+
+# 13. Three way beleaguered garrison
+
+Italy
+    A ven-tyr
+    A rom-ven
+Russia
+    A war-sil
+    A mos-war
+France
+    A par-bur
+
+Italy
+    A tyr-boh
+    A ven-tyr
+Russia
+    A sil-ber
+    A war-sil
+France
+    A bur-ruh
+    A mar-bur
+Germany
+    A ber-kie
+    F kie-den
+
+Italy
+    A boh-mun
+    A tyr S A boh-mun
+Russia
+    A ber-mun
+    A sil S A ber-mun
+France
+    A ruh-mun
+    A bur S A ruh-mun
+
+mun: Army Germany
+
+# 14. Illegal head to head battle can still defend
+
+Austria
+    F tri-ven
+Italy
+    A ven-pie
+
+Austria
+    F ven-rom
+Italy
+    A rom-ven
+
+rom: Army Italy
+ven: Fleet Austria
+
+# 15. The friendly head to head battle
+
+Germany
+    A mun-boh
+    A ber-kie
+    F kie-den
+Italy
+    A ven-tyr
+    A rom-ven
+Russia
+    A war-sil
+    A mos-war
+France
+    A par-bur
+
+Germany
+    A kie-den
+    F den-swe
+
+Germany
+    B A kie
+    B A ber
+
+Italy
+    A tyr-mun
+    A ven-tyr
+Russia
+    A war-gal
+France
+    A bur-ruh
+    A mar-bur
+
+Germany
+    A boh-mun
+    A kie S A boh-mun
+    A ber S A boh-mun
+Italy
+    A mun-boh
+    A tyr S A mun-boh
+Austria
+    A vie S A mun-boh
+Russia
+    A sil-boh
+    A gal S A sil-boh
+France
+    A ruh-mun
+    A bur S A ruh-mun
+
+ruh: Army France
+mun: Army Italy
+boh: Army Germany
+sil: Army Russia
