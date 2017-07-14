@@ -1,27 +1,72 @@
 # 1. NO CONVOY IN COASTAL AREAS
 
 Turkey
-    A con-bul
-    F ank-con
+    A con-arm
+    F ank C con-arm
+
+con: Army Turkey
+arm: empty
+
+# 2. AN ARMY BEING CONVOYED CAN BOUNCE AS NORMAL
+
+England
+    F edi-nth
+    A lvp-yor
+France
+    A par-pic
+
+England
+    F nth C yor-bel
+    A yor-bel
+France
+    A pic-bel
+
+bel: empty
+yor: Army England
+pic: Army France
+
+# 3. AN ARMY BEING CONVOYED CAN RECEIVE SUPPORT
+
+England
+    F edi-nth
+    A lvp-yor
+    F lon-eng
+France
+    A par-pic
+
+England
+    F nth C yor-bel
+    A yor-bel
+    F eng S yor-bel
+France
+    A pic-bel
+
+eng: Fleet England
+pic: Army France
+bel: Army England
+yor: empty
+nth: Fleet England
+
+# 4. AN ATTACKED CONVOY IS NOT DISRUPTED
+
 Italy
     F nap-ion
-Russia
-    F sev-bla
-    
-Turkey
-    A bul-gre
+Austria
+    F tri-adr
+    A bud-tri
+
 Italy
-    F ion-aeg
+    F ion-adr
+Austria
+    A tri-apu
+    F adr C tri-apu
 
-Turkey
+apu: Army Austria
+adr: Fleet Austria
+tri: empty
+ion: Fleet Italy
 
-Turkey
-    A gre-sev
-    F con C gre-sev
-Italy
-    F aeg C gre-sev
-Russia
-    F bla C gre-sev
+# 5. A BELEAGUERED CONVOY IS NOT DISRUPTED
 
-gre: Army Turkey
-sev: empty
+oh god
+
