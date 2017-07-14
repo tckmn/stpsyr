@@ -38,10 +38,10 @@ impl Stpsyr {
         if unit.owner != owner { return; }
 
         // can't order to a province you can't reach
-        if !convoyed && match &action {
-            &Action::Move { ref to, convoyed: _ } |
-            &Action::SupportHold { ref to } |
-            &Action::SupportMove { from: _, ref to } => {
+        if !convoyed && match action {
+            Action::Move { ref to, .. } |
+            Action::SupportHold { ref to } |
+            Action::SupportMove { ref to, .. } => {
                 let r = self.get_region(&province).unwrap();
                 !match unit.unit_type {
                     UnitType::Army => r.army_borders.clone(),
@@ -50,7 +50,7 @@ impl Stpsyr {
                             p.from_coast == r.province.coast &&
                             (!is_move || p.coast == to.coast))
                         .collect()
-                }.contains(&to)
+                }.contains(to)
             },
             _ => false
         } { return; }
@@ -75,7 +75,7 @@ impl Stpsyr {
         // resolve all orders
         for i in 0..self.orders.len() {
             self.resolve(i);
-            assert!(self.orders[i].state == OrderState::RESOLVED);
+            assert_eq!(self.orders[i].state, OrderState::RESOLVED);
             println!("{:?}", self.orders[i]);
         }
 

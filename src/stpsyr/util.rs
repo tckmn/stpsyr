@@ -17,7 +17,7 @@ impl Stpsyr {
     // get counts of SCs owned for each power
     pub fn sc_counts(&self) -> HashMap<Power, u32> {
         let mut counts = HashMap::new();
-        for ref r in self.map.iter() {
+        for r in &self.map {
             if r.sc {
                 if let Some(ref p) = r.owner {
                     if let Some(count) = counts.get_mut(p) {
@@ -34,7 +34,7 @@ impl Stpsyr {
     // get counts of units for each power
     pub fn unit_counts(&self) -> HashMap<Power, u32> {
         let mut counts = HashMap::new();
-        for ref r in self.map.iter() {
+        for r in &self.map {
             if let Some(ref u) = r.unit {
                 if let Some(count) = counts.get_mut(&u.owner) {
                     *count += 1;
@@ -48,7 +48,7 @@ impl Stpsyr {
 
     pub fn next_phase(&mut self) {
         // update ownership
-        for ref mut r in self.map.iter_mut() {
+        for ref mut r in &mut self.map {
             if !r.sc || self.phase == Phase::FallDiplomacy ||
                     self.phase == Phase::FallRetreats {
                 if let Some(ref unit) = r.unit {
