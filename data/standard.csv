@@ -9,15 +9,15 @@ bal,false,,,lvn pru ber kie den swe bot,
 bar,false,,,stp/nc nwy nwg,
 bel,true,,,eng nth hol pic,bur ruh hol pic
 ber,true,Germany,Army,bal pru kie,mun sil kie pru
-bla,false,,,sev arm ank con bul/nc rum,
+bla,false,,,sev arm ank con bul/ec rum,
 boh,false,Austria,,,mun sil gal vie tyr
 bre,true,France,Fleet,mao eng pic gas,par pic gas
 bud,true,Austria,Army,,vie gal rum ser tri
-bul/nc,true,,,rum bla con,ser rum gre con
+bul/ec,true,,,rum bla con,ser rum gre con
 bul/sc,true,,,con aeg gre,ser rum gre con
 bur,false,France,,,par pic bel ruh mun mar gas
 cly,false,England,,nao nwg edi lvp,edi lvp
-con,true,Turkey,Army,bul/nc bul/sc bla ank smy aeg,bul ank smy
+con,true,Turkey,Army,bul/ec bul/sc bla ank smy aeg,bul ank smy
 den,true,,,nth ska swe bal kie hel,swe kie
 eas,false,,,syr smy aeg ion,
 edi,true,England,Fleet,cly nwg nth yor,lvp cly yor
@@ -53,7 +53,7 @@ por,true,,,mao spa/nc spa/sc,spa
 pru,false,Germany,,bal lvn ber,war sil ber lvn
 rom,true,Italy,Army,tus nap tys,ven apu nap tus
 ruh,false,Germany,,,bel hol kie mun bur
-rum,true,,,bla bul/nc sev,ser bud gal ukr sev bul
+rum,true,,,bla bul/ec sev,ser bud gal ukr sev bul
 ser,true,,,,alb tri bud rum bul gre
 sev,true,Russia,Fleet,arm bla rum,ukr mos arm rum
 sil,false,Germany,,,ber pru war gal boh mun

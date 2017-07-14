@@ -144,7 +144,7 @@ fn test_coast() {
     move_order!(s, "Turkey", "ank", "con", false);
     move_order!(s, "Turkey", "con", "bul", false);
     s.apply_orders();
-    move_order!(s, "Turkey", "con", "bul/nc", false);
+    move_order!(s, "Turkey", "con", "bul/ec", false);
     move_order!(s, "Turkey", "bul", "gre", false);
     s.apply_orders();
     s.apply_adjusts();

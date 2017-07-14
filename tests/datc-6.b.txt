@@ -85,7 +85,7 @@ Italy
     F nap-ion
 
 Turkey
-    F con-bul/nc
+    F con-bul/ec
     A bul-gre
 Italy
     F ion-aeg
@@ -221,7 +221,7 @@ Russia
 Turkey
     A bul-gre
 Russia
-    A rum-bul/nc
+    A rum-bul/ec
 
 // skip builds
 Turkey
@@ -229,7 +229,7 @@ Turkey
 Turkey
     F con-bul/sc
 Russia
-    F bul/nc-con
+    F bul/ec-con
 
 con: Fleet Turkey
 bul: Fleet Russia
