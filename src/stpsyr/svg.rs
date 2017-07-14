@@ -14,7 +14,7 @@ enum LookState {
 impl Stpsyr {
 
     pub fn render_svg(&self, path: String) -> io::Result<()> {
-        let mut in_file = BufReader::new(File::open("data/standard.svg")?);
+        let in_file = BufReader::new(File::open("data/standard.svg")?);
         let mut out_file = File::create(path)?;
         let mut look_state = LookState::Nothing;
         let mut style_line = String::new();
