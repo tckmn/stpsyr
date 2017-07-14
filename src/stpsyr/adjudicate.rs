@@ -238,7 +238,7 @@ impl Stpsyr {
     fn find_paths<'a>(&'a self, path: Vec<&'a MapRegion>, target: &Province)
             -> Vec<Vec<&MapRegion>> {
         // the "end" of the current chain
-        let region = (*path.last().unwrap()).clone();
+        let region = path.last().unwrap().clone();
         // if we've made it already, return
         if region.fleet_borders.contains(target) { return vec![path]; }
         // otherwise, find the next fleet in the chain
