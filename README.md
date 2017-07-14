@@ -12,4 +12,8 @@ that allows Backstabbr-style input of orders.
 The adjudication algorithm is taken from Lucas Kruijswijk's
 [The Math of Adjudication](http://www.diplomatic-pouch.org/Zine/S2009M/Kruijswijk/DipMath_Chp1.htm).
 
+Diplomacy players may recognize that the name comes from the objectively best
+order one can give in standard Diplomacy: `A StP-Syr (via convoy)`. I pronounce
+it "stipser" (/ˈstɪp.sɚ/).
+
 stpsyr is licensed under the GNU GPL 3.0.
