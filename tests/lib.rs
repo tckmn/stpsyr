@@ -22,56 +22,8 @@ use stpsyr::*;
 use std::io::{BufRead, BufReader};
 use std::fs::File;
 
-macro_rules! move_order {
-    ($s:ident, $power:expr, $from:expr, $to:expr, $convoyed:expr) => (
-        $s.add_order(Power::from($power), Province::from($from), Action::Move { to: Province::from($to), convoyed: $convoyed });
-    )
-}
-
-macro_rules! support_hold_order {
-    ($s:ident, $power:expr, $from:expr, $to:expr) => (
-        $s.add_order(Power::from($power), Province::from($from), Action::SupportHold { to: Province::from($to) });
-    )
-}
-
-macro_rules! support_move_order {
-    ($s:ident, $power:expr, $from:expr, $from2:expr, $to:expr) => (
-        $s.add_order(Power::from($power), Province::from($from), Action::SupportMove { from: Province::from($from2), to: Province::from($to) });
-    )
-}
-
-macro_rules! convoy_order {
-    ($s:ident, $power:expr, $from:expr, $from2:expr, $to:expr) => (
-        $s.add_order(Power::from($power), Province::from($from), Action::Convoy { from: Province::from($from2), to: Province::from($to) });
-    )
-}
-
-macro_rules! order {
-    ($s:ident, $orders:expr) => (
-        $s.parse(String::from($orders));
-    )
-}
-
-macro_rules! assert_empty {
-    ($s:ident, $x:expr) => (
-        assert!($s.get_unit(&Province::from($x)).is_none());
-    )
-}
-
-macro_rules! assert_nonempty {
-    ($s:ident, $x:expr) => (
-        assert!($s.get_unit(&Province::from($x)).is_some());
-    )
-}
-
-macro_rules! assert_unit {
-    ($s:ident, $province:expr, $unit:expr) => (
-        assert_eq!(format!("{:?}", $s.get_unit(&Province::from($province)).unwrap()), $unit);
-    )
-}
-
 fn test_from_file(filename: &str) {
-    let err_msg = "bad thing happen ono"; // TODO ...
+    let err_msg = "error parsing test cases";
     let f = File::open(filename).expect(err_msg);
     let file = BufReader::new(&f);
     let mut title = String::new();
@@ -125,32 +77,3 @@ fn test_datc_6c() { test_from_file("tests/datc-6.c.txt"); }
 fn test_datc_6d() { test_from_file("tests/datc-6.d.txt"); }
 #[test]
 fn test_datc_6e() { test_from_file("tests/datc-6.e.txt"); }
-
-#[test]
-fn test_convoy() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Italy", "nap", "ion", false);
-    move_order!(s, "Italy", "rom", "apu", false);
-    s.apply_orders();
-    convoy_order!(s, "Italy", "ion", "apu", "tun");
-    move_order!(s, "Italy", "apu", "tun", true);
-    s.apply_orders();
-    assert_nonempty!(s, "tun");
-}
-
-#[test]
-fn test_coast() {
-    let mut s = Stpsyr::new("data/standard.csv");
-    move_order!(s, "Turkey", "ank", "con", false);
-    move_order!(s, "Turkey", "con", "bul", false);
-    s.apply_orders();
-    move_order!(s, "Turkey", "con", "bul/ec", false);
-    move_order!(s, "Turkey", "bul", "gre", false);
-    s.apply_orders();
-    s.apply_adjusts();
-    support_move_order!(s, "Turkey", "bul", "bud", "rum");
-    move_order!(s, "Austria", "bud", "rum", false);
-    move_order!(s, "Russia", "sev", "rum", false);
-    s.apply_orders();
-    assert_nonempty!(s, "rum");
-}
