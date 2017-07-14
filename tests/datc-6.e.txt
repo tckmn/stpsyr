@@ -94,3 +94,187 @@ Italy
 
 mun: Army Germany
 sil: Army Austria
+
+# 5. Loser dislodged by another army has still effect
+// note: same as previous test case except without one support
+
+England
+    F edi-nth
+    A lvp-yor
+France
+    A par-bur
+Germany
+    F kie-hel
+Russia
+    A war-pru
+    A mos-war
+Austria
+    A vie-boh
+    A bud-vie
+
+England
+    F nth C A yor-kie
+    A yor-kie (via convoy)
+France
+    A bur-ruh
+    A mar-bur
+Germany
+    F hel C A yor-kie
+Austria
+    A boh-sil
+    A vie-boh
+
+Germany
+    D hel
+
+England
+    A kie-mun
+France
+    A ruh S A kie-mun
+    A bur S A kie-mun
+Germany
+    A mun-sil
+    A ber S A mun-sil
+Russia
+    A war-sil
+    A pru S A war-sil
+Austria
+    A sil-mun
+    A boh S A sil-mun
+
+mun: Army England
+sil: Army Austria
+
+# 6. Not dislodge because of own support has still effect
+
+France
+    A mar-pie
+    A par-bur
+Italy
+    A ven-tyr
+    A rom-ven
+Russia
+    A war-sil
+Austria
+    A vie-boh
+
+Germany
+    A mun-tyr
+Italy
+    A tyr-mun
+    A ven S A mun-tyr
+France
+    A pie S A mun-tyr
+    A bur S A tyr-mun
+Russia
+    A sil-mun
+Austria
+    A boh S A sil-mun
+
+mun: Army Germany
+tyr: Army Italy
+
+# 7. No self dislodgement with beleaguered garrison
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    F tri-alb
+    A bud-tri
+Germany
+    A mun-boh
+    A ber-mun
+
+Germany
+    A mun-tyr
+    A boh S A mun-tyr
+Austria
+    A tri-tyr
+    A vie S A tri-tyr
+Italy
+    A ven S A tri-tyr
+
+tyr: Army Italy
+
+# 8. No self dislodgement with beleaguered garrison and head to head battle
+// same as above but with an extra italy move
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    F tri-alb
+    A bud-tri
+Germany
+    A mun-boh
+    A ber-mun
+
+Germany
+    A mun-tyr
+    A boh S A mun-tyr
+Austria
+    A tri-tyr
+    A vie S A tri-tyr
+Italy
+    A ven S A tri-tyr
+    A tyr-tri
+
+tyr: Army Italy
+
+# 9. Almost self dislodgement with beleaguered garrison
+// same as above but with a different extra italy move
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    F tri-alb
+    A bud-tri
+Germany
+    A mun-boh
+    A ber-mun
+
+Germany
+    A mun-tyr
+    A boh S A mun-tyr
+Austria
+    A tri-tyr
+    A vie S A tri-tyr
+Italy
+    A ven S A tri-tyr
+    A tyr-pie
+
+pie: Army Italy
+tyr: Army Austria
+
+# 10. Almost circular movement with no self dislodgement with beleaguered garrison
+// similar to above
+
+Italy
+    A ven-tyr
+    A rom-ven
+Austria
+    F tri-alb
+    A bud-tri
+Germany
+    A mun-boh
+    A ber-mun
+France
+    A mar-pie
+
+Germany
+    A mun-tyr
+    A boh-mun
+Austria
+    A tri-tyr
+    A vie S A tri-tyr
+France
+    A pie S A mun-tyr
+Italy
+    A ven S A tri-tyr
+    A tyr-boh
+
+mun: Army Germany
+tyr: Army Italy
+boh: Army Germany
