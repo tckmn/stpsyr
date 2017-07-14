@@ -1,0 +1,27 @@
+# 1. NO CONVOY IN COASTAL AREAS
+
+Turkey
+    A con-bul
+    F ank-con
+Italy
+    F nap-ion
+Russia
+    F sev-bla
+    
+Turkey
+    A bul-gre
+Italy
+    F ion-aeg
+
+Turkey
+
+Turkey
+    A gre-sev
+    F con C gre-sev
+Italy
+    F aeg C gre-sev
+Russia
+    F bla C gre-sev
+
+gre: Army Turkey
+sev: empty
