@@ -137,11 +137,11 @@ impl Stpsyr {
                 true
             },
 
-            Action::Move { to, .. } => {
+            Action::Move { to, convoyed } => {
                 let attack_strength = self.attack_strength(&province);
 
                 // the attack strength (above) needs to be greater than this
-                let counter_strength = if self.orders.iter().any(|o|
+                let counter_strength = if !convoyed && self.orders.iter().any(|o|
                         match o.action {
                             Action::Move { to: ref move_to, convoyed } =>
                                 province == *move_to && !convoyed,
