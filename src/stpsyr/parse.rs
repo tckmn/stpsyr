@@ -1,5 +1,7 @@
 use stpsyr::types::*;
 
+extern crate bincode;
+
 impl Stpsyr {
 
     // parse orders as a string and apply them
@@ -23,6 +25,14 @@ impl Stpsyr {
             Phase::Builds =>
                 self.apply_adjusts()
         }
+    }
+
+    pub fn serialize(&self) -> Vec<u8> {
+        bincode::serialize(self, bincode::Infinite).unwrap()
+    }
+
+    pub fn deserialize(encoded: &Vec<u8>) {
+        bincode::deserialize(encoded).unwrap()
     }
 
     fn parse_orders(&mut self, power: &Power, orders: String) {

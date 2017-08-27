@@ -6,7 +6,7 @@ use std::collections::HashSet;
 
 // the only information attached to a Unit is its owner and type
 // ex. "Austrian fleet"
-#[derive(Clone)]
+#[derive(Serialize,Deserialize,Clone)]
 pub struct Unit {
     pub owner: Power,
     pub unit_type: UnitType
@@ -16,12 +16,12 @@ impl fmt::Debug for Unit {
         write!(f, "{:?} {:?}", self.unit_type, self.owner)
     }
 }
-#[derive(Clone,Copy,Debug,PartialEq)]
+#[derive(Serialize,Deserialize,Clone,Copy,Debug,PartialEq)]
 pub enum UnitType { Army, Fleet }
 
 // a Province is an extension of a String, partially for semantics, but also
 //   because we need to take coasts into account when enumerating borders
-#[derive(Clone,Eq)]
+#[derive(Serialize,Deserialize,Clone,Eq)]
 pub struct Province {
     pub name: String,
     pub coast: Option<char>,
@@ -64,7 +64,7 @@ impl hash::Hash for Province {
 
 // a Power is simply a wrapper around a String for semantics
 // ex. Germany, Austria
-#[derive(Clone,Eq,Hash)]
+#[derive(Serialize,Deserialize,Clone,Eq,Hash)]
 pub struct Power {
     pub name: String
 }
@@ -92,7 +92,7 @@ impl cmp::PartialEq for Power {
 // a MapRegion is a location on the map, storing the province, whether it's an
 //   SC, its current owner, the unit in it (not necessarily with the same owner
 //   as the region), and its borders (stored separately for fleets and armies)
-#[derive(Clone)]
+#[derive(Serialize,Deserialize,Clone)]
 pub struct MapRegion {
     pub province: Province,
     pub sc: bool,
@@ -118,9 +118,9 @@ impl cmp::PartialEq for MapRegion {
 }
 
 // here are some utility types for the Order struct
-#[derive(Clone,Debug,PartialEq)]
+#[derive(Serialize,Deserialize,Clone,Debug,PartialEq)]
 pub enum OrderState { UNRESOLVED, GUESSING, RESOLVED }
-#[derive(Clone,Debug)]
+#[derive(Serialize,Deserialize,Clone,Debug)]
 pub enum Action {
     Hold,
     Move { to: Province, convoyed: bool },
@@ -133,7 +133,7 @@ pub enum Action {
 //   the actual order (action), and some meta information for the resolve() and
 //   adjudicate() functions
 // it is separate from a Retreat and an Adjust
-#[derive(Clone,Debug)]
+#[derive(Serialize,Deserialize,Clone,Debug)]
 pub struct Order {
     pub owner: Power,
     pub province: Province,
@@ -144,6 +144,7 @@ pub struct Order {
 }
 
 // utility type for Retreat, corresponding to Action for Order
+#[derive(Serialize,Deserialize)]
 pub enum RetreatAction {
     Disband,
     Move { to: Province }
@@ -151,12 +152,14 @@ pub enum RetreatAction {
 
 // a Retreat stores the power that ordered it, which province to retreat from,
 //   and what to do with it (disband or move)
+#[derive(Serialize,Deserialize)]
 pub struct Retreat {
     pub owner: Power,
     pub province: Province,
     pub action: RetreatAction
 }
 
+#[derive(Serialize,Deserialize)]
 pub enum AdjustAction {
     Disband,
     Build { unit_type: UnitType }
@@ -164,6 +167,7 @@ pub enum AdjustAction {
 
 // a Adjust stores the power that ordered it, which province to build/destroy
 // in, and what to do there (disband or build a unit)
+#[derive(Serialize,Deserialize)]
 pub struct Adjust {
     pub owner: Power,
     pub province: Province,
@@ -171,7 +175,7 @@ pub struct Adjust {
 }
 
 // fairly self-explanatory
-#[derive(Clone,Copy,Debug,PartialEq)]
+#[derive(Serialize,Deserialize,Clone,Copy,Debug,PartialEq)]
 pub enum Phase {
     SpringDiplomacy,
     SpringRetreats,
@@ -181,6 +185,7 @@ pub enum Phase {
 }
 
 // this is the main struct (duh)
+#[derive(Serialize,Deserialize)]
 pub struct Stpsyr {
     pub map: Vec<MapRegion>,
     pub orders: Vec<Order>,

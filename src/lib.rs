@@ -16,5 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#[macro_use]
+extern crate serde_derive;
+
 mod stpsyr;
 pub use stpsyr::*;

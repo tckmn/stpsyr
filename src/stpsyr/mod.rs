@@ -1,4 +1,5 @@
 extern crate csv;
+extern crate bincode;
 
 use std::collections::HashSet;
 
